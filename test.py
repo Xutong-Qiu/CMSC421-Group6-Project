@@ -20,10 +20,19 @@ class Predicate:
             return '~{}({})'.format(self.name,self.data1,self.data2)
 
     def __eq__(self, predicate):
-        if predicate == None:
+        if not isinstance(predicate, Predicate) or self.negation != predicate.negation:
             return False
         elif self.name==predicate.name:
-            if self.data1type == CONST and self.data2type == CONST and predicate.data1type == CONST and predicate.data2type == CONST:
+            if self.data2type == None:
+                if predicate.data2type != None:
+                    return False
+                else:
+                    if self.data1type == CONST and predicate.data1type == CONST:
+                        return self.data1 == predicate.data1
+                    elif self.data1type == VAR and predicate.data1type == VAR:
+                        return True
+                    else: return False
+            elif self.data1type == CONST and self.data2type == CONST and predicate.data1type == CONST and predicate.data2type == CONST:
                 return self.data1 == predicate.data1 and self.data2 == predicate.data2
             elif self.data1type == CONST and self.data2type == VAR and predicate.data1type == CONST and predicate.data2type == VAR:
                 return self.data1 == predicate.data1
@@ -115,12 +124,33 @@ class Clause:
                 return
         np.append(self.predicates, predicate)
 
+    def __eq__(self, clause):
+        if not isinstance(clause, Clause):
+            return False
+        elif len(self.predicates) != len(clause.predicates):
+            return False
+        else:
+            for i in self.predicates:
+                exist = False
+                for j in clause.predicates:
+                    if i == j:
+                        exist = True
+                if not exist:
+                    return False
+            return True
+
     def __str__(self):
-        s=self.predicates[0].__str__()
-        for i in range(1, len(self.predicates)):
-            s += ' V ' + self.predicates[i].__str__()
-        return s
-        
+        if len(self.predicates)==0:
+            return 'Empty'
+        else:
+            s=self.predicates[0].__str__()
+            for i in range(1, len(self.predicates)):
+                s += ' V ' + self.predicates[i].__str__()
+            return s
+
+    def is_empty(self):
+        return  len(self.predicates)==0  
+
     #This function carries out the resolution process. 
     def resolution(self, clause):
         for i in range(0,len(self.predicates)):
@@ -165,7 +195,7 @@ class FOPL:
         elif self.op==EXIST:
             return 'EXIST[{}]({})'.format(self.p2,self.p1)
         elif self.op==NEG:
-            return 'NEG({},{})'.format(self.p1,self.p2)
+            return '~({})'.format(self.p1)
 
 
     def negate(self):
@@ -196,11 +226,29 @@ class Solver:
         self.kb = clauses #knowledge base
 
     def add_knowledge(self, new_k):
-        #incomplete: check duplication
-        self.kb = np.append(self.kb,new_k)
+        if not self.contain_knowledge(new_k):
+            self.kb = np.append(self.kb,new_k)
+
+    def contain_knowledge(self, k):
+        for i in self.kb:
+            if k == i:
+                return True
+        return False
 
     def res(self):
-       0
+        for i in range(0, len(self.kb)):
+            for j in range(i+1, len(self.kb)):
+                if i == j:
+                    continue
+                result = self.kb[i].resolution(self.kb[j])
+                print('result: {} |{} -> {}'.format(self.kb[i],self.kb[j],result))
+                if  result != None:
+                    if result.is_empty():
+                       return True
+                    else:
+                        self.add_knowledge(result)
+        return False
+                
     
 
 
@@ -212,12 +260,20 @@ a = Predicate("likes", 'X', VAR)#likes(X)
 b = Predicate("likes", 'a', CONST)#likes(a)
 c = Predicate("food", 'b', CONST)#food(b)
 d=Predicate("food", 'b', CONST)#food(b)
-#c.negate()#~food(b)
+c.negate()#~food(b)
 clause1=Clause(np.array([a,c]))#likes(X)V~food(b)
 clause2=Clause(np.array([b,d]))#likes(a)Vfood(b)
-print(clause1)
-'''#print(a.negation)
+#clause1=Clause(np.array([c]))#likes(X)V~food(b)
+#clause2=Clause(np.array([d]))#likes(a)Vfood(b)
+#print(clause1)
+#print(clause2)
 print(clause1.resolution(clause2))
+s = Solver()
+s.add_knowledge(clause1)
+s.add_knowledge(clause2)
+print(s.res())
+'''#print(a.negation)
+
 #s=Solver()
 test3=Clause(np.array([a]))
 test4=Clause(np.array([b]))
@@ -231,6 +287,6 @@ print(a.unifiable(b))
 x = FOPL(a, None, None)
 y=FOPL(ALL, x, 'X')
 y.negate()
-y.negate()
-print(y)
+#y.negate()
+#print(y)
 
