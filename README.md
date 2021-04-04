@@ -10,6 +10,6 @@ Contains all core classes needed for the project.\
 Predicate\
 Clause\
 FOPL\
-To use these classes, you should have
->from coreClasses import *\
-in your header
+To use these classes, you should have the following in your header
+>from coreClasses import *
+
