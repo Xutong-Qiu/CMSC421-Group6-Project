@@ -1,4 +1,4 @@
-# CMSC426-Group6-Project
+# CMSC421-Group6-Project
 
 # Usage
 The following command will clone the repository to your local:
