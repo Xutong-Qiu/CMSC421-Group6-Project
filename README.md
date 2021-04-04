@@ -6,7 +6,7 @@ The following command will clone the repository to your local:
 ## Project Description
 
 ### coreClasses.py
-Contains all core classes needed for the project.\
+The file contains all core classes needed for the project.\
 Predicate\
 Clause\
 FOPL\
