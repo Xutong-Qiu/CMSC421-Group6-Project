@@ -11,5 +11,5 @@ Predicate\
 Clause\
 FOPL\
 To use these classes, you should have
->> from coreClasses import *
+>from coreClasses import *\
 in your header
