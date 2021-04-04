@@ -9,4 +9,4 @@ The following command will clone the repository to your local:
 Contains all core classes needed for the project.\
 Predicate\
 Clause\
-FOPL\
+FOPL
