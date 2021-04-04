@@ -7,6 +7,7 @@ The following command will clone the repository to your local:
 
 ### coreClasses.py
 The file contains all core classes needed for the project.\
+The file also contains bugs and glitches. Let Xutong know if you find something that's not working.\
 Predicate\
 Clause\
 FOPL\
