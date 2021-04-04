@@ -13,5 +13,5 @@ FOPL\
 To use these classes, you should have the following line in your header
 >from coreClasses import *\
 >
-##### The file also contains bugs and glitches. Let Xutong know if you find something that's not working.\
+##### The file also contains bugs and glitches. Let Xutong know if you find something that's not working.
 
