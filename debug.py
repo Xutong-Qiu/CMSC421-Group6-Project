@@ -37,3 +37,20 @@ y=FOPL(ALL, x, 'X')
 y.negate()
 #y.negate()
 #print(y)
+
+
+
+ab3 = Clause([Predicate("ab", 'b', CONST, 'c', CONST)])#ab(b,c)
+ab2 = Clause([Predicate("ab", 'a', CONST, 'b', CONST)])#ab(a,b)
+in1=Clause([Predicate("in", 'e', CONST, 'f', CONST)])#in(e,f)
+rt4 = Clause([Predicate("rt", 'd', CONST, 'c', CONST)])#rt
+rt5 = Clause([Predicate("rt", 'b', CONST, 'f', CONST)])#rt
+in6 = Predicate("in", 'X', VAR, 'Y', VAR)#in(X,Y)
+in6.negate()#~in(X,Y)
+rt6 = Predicate("rt", 'Z', VAR, 'Y', VAR)#rt(Z,Y)
+rt6.negate()#~rt(Z,Y)
+rt62 = Predicate("rt", 'Z', VAR, 'X', VAR)#rt(Z,X)
+c6=Clause([in6,rt6,rt62])
+
+rt7 = Predicate("rt", 'X1', VAR, 'Y1', VAR)#rt(X1,Y1)
+rt7.negate()
