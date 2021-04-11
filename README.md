@@ -15,6 +15,10 @@ As we have previously discussed, the parser will output a string representing a 
   * Uppercase letter or words starting with uppercase letter represents varibles. eg: like(X,Y), like(X1,Y1), like(Person,Person)
   * Lowercase letter or words starting with lowercase letter represents constants. eg: like(a,b), like(a1,b1), Greek(socrates)
   * There's no convention for the name of predicates. 
+FOPL example: Ex(X) like(X,cat) & like(X,dog)
+
+### String to FOPL Converter
+  Use regular expression to match the string.
 
 
 ### coreClasses.py
