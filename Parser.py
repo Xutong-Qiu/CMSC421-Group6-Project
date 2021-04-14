@@ -1,4 +1,6 @@
 import nltk
+from pattern.en import pluralize, singularize
+# pip install pattern
 
 #run the following once
 #nltk.download('punkt')
@@ -69,9 +71,7 @@ def parser(sentence):
                 fopl = '¬∃(X) ((' + nouns[0] + '(X) →' + '(' + nouns[1] + '(X)))'
             else:
                 fopl = '¬∃(X) ((' + nouns[0] + '(X) → (' + verb + '(X, ' + nouns[1]+ ')))'
-        else:
-            print('Syntax not recognized: ', syntax)
-            return ('Syntax not recognized: ', syntax)
+
 
     
     
