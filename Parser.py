@@ -42,14 +42,47 @@ def parser(sentence):
          nouns = [item for item in tags if item[1] == 'NOUN']
          fopl = verb + '(' + nouns[0][0] + ', ' + nouns[1][0] + ')'
     #elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens == ['All', '', 'are', '']):
-    elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens[0] == 'All' and tokens[2] == 'are'):
-        fopl = 'All(x) ' + tokens[3] + '(' + tokens[1] + ')' 
-    elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens[0] == 'Some' and tokens[2] == 'are'):
-        fopl = 'Ex(x) ' + tokens[3] + '(' + tokens[1] + ')' 
-    elif(syntax == ['NOUN', 'VERB', 'DET', 'ADJ', 'NOUN', '.']):    # 'VERB' is 'is'  -- need to distinguish not 'is'
-         modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
-         nouns = [item for item in tags if item[1] == 'NOUN']
-         fopl = modifier + '(' + nouns[0][0] + ') & ' + nouns[1][0] + '(' + nouns[0][0] + ')'
+    
+    
+    
+    ### new edit ###
+    
+    elif(syntax == ['DET', 'NOUN', 'VERB', 'NOUN', '.']): 
+        # All men are mortals. ∀(x) ((man(x)) → (mortal(x)))
+        # No cat loves fish. ¬∃(X) ((cat(X) → (love(X, dog)))
+        verb = [item[0] for item in tags if item[1] == 'VERB'][0]
+        nouns = [singularize(item[0]) for item in tags if item[1] == 'NOUN']
+        verb = [singularize(item[0]) for item in tags if item[1] == 'VERB'][0]
+        (det, _) = tags[0]
+        if(det == 'All') or (det == 'Every'):
+            if(verb == 'is') or (verb == 'are'):
+                fopl = '∀(X) ((' + nouns[0] + '(X) →' + '(' + nouns[1] + '(X)))'
+            else:
+                fopl = '∀(X) ((' + nouns[0] + '(X) → (' + verb + '(X, ' + nouns[1]+ ')))'
+        elif det == 'Some':
+            if(verb == 'is') or (verb == 'are'):
+                fopl = '∃(X) ((' + nouns[0] + '(X) →' + '(' + nouns[1] + '(X)))'
+            else:
+                fopl = '∃(X) ((' + nouns[0] + '(X) → (' + verb + '(X, ' + nouns[1]+ ')))'
+        elif det == 'No':
+            if(verb == 'is') or (verb == 'are'):
+                fopl = '¬∃(X) ((' + nouns[0] + '(X) →' + '(' + nouns[1] + '(X)))'
+            else:
+                fopl = '¬∃(X) ((' + nouns[0] + '(X) → (' + verb + '(X, ' + nouns[1]+ ')))'
+        else:
+            print('Syntax not recognized: ', syntax)
+            return ('Syntax not recognized: ', syntax)
+
+    
+    
+#     elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens[0] == 'All' and tokens[2] == 'are'):
+#         fopl = 'All(x) ' + tokens[3] + '(' + tokens[1] + ')' 
+#     elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens[0] == 'Some' and tokens[2] == 'are'):
+#         fopl = 'Ex(x) ' + tokens[3] + '(' + tokens[1] + ')' 
+#     elif(syntax == ['NOUN', 'VERB', 'DET', 'ADJ', 'NOUN', '.']):    # 'VERB' is 'is'  -- need to distinguish not 'is'
+#          modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
+#          nouns = [item for item in tags if item[1] == 'NOUN']
+#          fopl = modifier + '(' + nouns[0][0] + ') & ' + nouns[1][0] + '(' + nouns[0][0] + ')'
     elif(new):  
         fopl = 'undefined'    
     else:
@@ -82,9 +115,13 @@ for sentence in sentences:
     parser(sentence)
     
 print("***Quantifiers***")
-parser('All people are mortal.')
 parser('Some cats are nice.')
-    
+
+parser('All men are mortals.')
+parser('No cats loves dog.')
+# parser('A cat loves fish.') # ['DET', 'NOUN', 'VERB', 'ADJ', '.'], nlkt library error.
+parser('Some cats catch mice.')
+
 # syllogism
 #text = 'All people are mortal. Socrates is a person. Therefore, Socrates is mortal.'
 #sentences = nltk.sent_tokenize(text)
