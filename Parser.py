@@ -79,8 +79,19 @@ def parser(sentence):
             else:
                 fopl = '¬∃(X) ((' + nouns[0] + '(X) → (' + verb + '(X, ' + nouns[1]+ ')))'
 
+    elif((syntax == ['ADV', 'DET', 'NOUN', 'VERB', 'NOUN', '.'] or 
+    syntax == ['ADV', 'DET', 'NOUN', 'ADP', 'NOUN', '.']) and
+    ((tokens[0] == 'Not' and tokens[1] == 'all') or ((tokens[0] == 'Not' and tokens[1] == 'every')))):
+    # 'Not every cat likes dogs.'
+    # 'Not all cats like dogs.'
+        nouns = [item[0] for item in tags if item[1] == 'NOUN']
+        verb = [item[0] for item in tags if item[1] == 'VERB' or item[1] == 'ADP'][0]
+        if(verb == 'is') or (verb == 'are'):
+                fopl = '¬∀(X) ((' + nouns[0] + '(X) →' + '(' + nouns[1] + '(X)))'
+        else:
+            fopl = '¬∀(X) ((' + nouns[0] + '(X) → (' + verb + '(X, ' + nouns[1]+ ')))'
 
-
+            
     elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens[0] == 'All' and 
     (tokens[2] == 'are' or tokens[2] == 'is')):
         # All water is precious.        All dogs are nice.
@@ -99,7 +110,7 @@ def parser(sentence):
         # 'VERB' is 'is' -- need to distinguish not 'is'
          modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
          nouns = [item for item in tags if item[1] == 'NOUN']
-         fopl = modifier + '(' + nouns[0][0] + ') & ' + nouns[1][0] + '(' + nouns[0][0] + ')'
+         fopl = modifier + '(' + nouns[0][0] + ') ∧ ' + nouns[1][0] + '(' + nouns[0][0] + ')'
 
     elif(new):  
         fopl = 'undefined'    
@@ -107,7 +118,7 @@ def parser(sentence):
     else:
         return ('Syntax not recognized: ', syntax)
         
-    '''if(verbose):
+    if(verbose):
         print('sentence: ', sentence)
         print('tokens: ', tokens)
         print('standard tags: ', standardTags)
@@ -115,9 +126,9 @@ def parser(sentence):
         print('syntax: ', syntax)
         print('fopl: ', fopl)
         print()
-        '''
+    
     return fopl
-'''
+
 parser('Socrates is mortal.')
 parser('Socrates is mortal and Greek.')
 parser('Socrates is mortal or Greek.')
@@ -135,7 +146,17 @@ for sentence in sentences:
     
 print("***Quantifiers***")
 parser('Some cats are nice.')
-'''
+parser('All dogs are nice.')
+parser('All water is precious.')
+parser('Some water is expensive.')
+parser('All men are mortals.')
+parser('No cats loves dog.')
+parser('Some cats catch mice.')
+parser('Every dog loves humans.')
+parser('Not all cats like dogs.')
+parser('Not every cat likes dogs.')
+
+
 parser('All men are mortals.')
 parser('No cats loves dog.')
 # parser('A cat loves fish.') # ['DET', 'NOUN', 'VERB', 'ADJ', '.'], nlkt library error.
