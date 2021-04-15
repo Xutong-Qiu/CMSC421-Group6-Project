@@ -1,9 +1,9 @@
 import nltk
-#from pattern.en import pluralize, singularize
+from pattern.en import pluralize, singularize
 
 
 #### run the following once ###
-# pip install pattern # Optional. For singularize some NOUN
+# pip install pattern
 # nltk.download('punkt')
 # nltk.download('averaged_perceptron_tagger')
 
@@ -60,8 +60,8 @@ def parser(sentence):
         # All men are mortals. ∀(x) ((man(x)) → (mortal(x)))
         # No cat loves fish. ¬∃(X) ((cat(X) → (love(X, dog)))
         verb = [item[0] for item in tags if item[1] == 'VERB'][0]
-        nouns = [item[0] for item in tags if item[1] == 'NOUN']
-        verb = [item[0] for item in tags if item[1] == 'VERB'][0]
+        nouns = [singularize(item[0]) for item in tags if item[1] == 'NOUN']
+        verb = [singularize(item[0]) for item in tags if item[1] == 'VERB'][0]
         (det, _) = tags[0]
         if(det == 'All') or (det == 'Every'):
             if(verb == 'is') or (verb == 'are'):
@@ -79,30 +79,20 @@ def parser(sentence):
             else:
                 fopl = '¬∃(X) ((' + nouns[0] + '(X) → (' + verb + '(X, ' + nouns[1]+ ')))'
 
-    elif((syntax == ['ADV', 'DET', 'NOUN', 'VERB', 'NOUN', '.'] 
-    or syntax == ['ADV', 'DET', 'NOUN', 'ADP', 'NOUN', '.']) and
-    ((tokens[0] == 'Not' and tokens[1] == 'all') or ((tokens[0] == 'Not' and tokens[1] == 'every')))):
-    # 'Not every cat likes dogs.'
-    # 'Not all cats like dogs.'
-        nouns = [item[0] for item in tags if item[1] == 'NOUN']
-        verb = [item[0] for item in tags if item[1] == 'VERB' or item[1] == 'ADP'][0]
-        if(verb == 'is') or (verb == 'are'):
-                fopl = '¬∀(X) ((' + nouns[0] + '(X) →' + '(' + nouns[1] + '(X)))'
-        else:
-            fopl = '¬∀(X) ((' + nouns[0] + '(X) → (' + verb + '(X, ' + nouns[1]+ ')))'
 
-    elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and 
-    (tokens[0] == 'All' or tokens[0] == 'Every') and (tokens[2] == 'are' or tokens[2] == 'is')):
+
+    elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens[0] == 'All' and 
+    (tokens[2] == 'are' or tokens[2] == 'is')):
         # All water is precious.        All dogs are nice.
         # fopl = 'All(x) ' + tokens[3] + '(' + tokens[1] + ')' 
-        nouns = [item[0] for item in tags if item[1] == 'NOUN']
+        nouns = [singularize(item[0]) for item in tags if item[1] == 'NOUN']
         fopl = '∀(X) ((' + nouns[0] + '(X) → ' + tokens[3] + '(X' + '))' 
 
     elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens[0] == 'Some' and 
     (tokens[2] == 'are' or tokens[2] == 'is')):
         # Some water is expensive.      Some cats are nice.
         # fopl = '∃(x) ' + tokens[3] + '(' + tokens[1] + ')' 
-        nouns = [item[0] for item in tags if item[1] == 'NOUN']
+        nouns = [singularize(item[0]) for item in tags if item[1] == 'NOUN']
         fopl = '∃(X) ((' + nouns[0] + '(X) → ' + tokens[3] + '(X' + '))' 
 
     elif(syntax == ['NOUN', 'VERB', 'DET', 'ADJ', 'NOUN', '.']): # Jack is a smart student.
@@ -117,7 +107,7 @@ def parser(sentence):
     else:
         return ('Syntax not recognized: ', syntax)
         
-    if(verbose):
+    '''if(verbose):
         print('sentence: ', sentence)
         print('tokens: ', tokens)
         print('standard tags: ', standardTags)
@@ -125,15 +115,16 @@ def parser(sentence):
         print('syntax: ', syntax)
         print('fopl: ', fopl)
         print()
-        
+        '''
     return fopl
-
+'''
 parser('Socrates is mortal.')
 parser('Socrates is mortal and Greek.')
 parser('Socrates is mortal or Greek.')
 parser('Socrates is a philospher.')
 parser('A dog chases a car.')
 parser('Socrates is a mortal philospher.')
+parser('Joe climbs a ladder.')
 parser('Joe climbs a ladder.')
 
 print('***Multiple sentences***\n')
@@ -144,20 +135,11 @@ for sentence in sentences:
     
 print("***Quantifiers***")
 parser('Some cats are nice.')
-parser('All dogs are nice.')
-parser('All water is precious.')
-parser('Some water is expensive.')
+'''
 parser('All men are mortals.')
 parser('No cats loves dog.')
+# parser('A cat loves fish.') # ['DET', 'NOUN', 'VERB', 'ADJ', '.'], nlkt library error.
 parser('Some cats catch mice.')
-parser('Every dog loves humans.')
-parser('Not all cats like dogs.')
-parser('Not every cat likes dogs.')
-
-# nlkt tagging error.
-# parser('A cat loves fish.') syntax: ['DET', 'NOUN', 'VERB', 'ADJ', '.']
-# parser('Not all cat likes human.') syntax:  ['ADV', 'DET', 'NOUN', 'VERB', 'ADJ', '.']
-
 
 # syllogism
 #text = 'All people are mortal. Socrates is a person. Therefore, Socrates is mortal.'
