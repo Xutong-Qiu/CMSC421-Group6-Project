@@ -10,9 +10,10 @@ while True:
         knowledge = input("Enter the knowledge:")
         while knowledge != 'done':
             foplstring=Parser.parser(knowledge)
-            fopl=converter1(foplstring)
+            print(foplstring)
+            '''fopl=converter1(foplstring)
             clause=converter2(fopl)
-            s.add_knowledge(clause)
+            s.add_knowledge(clause)'''
             knowledge = input("Enter the knowledge:")
     elif command == 'solve':
             print(s.res())
