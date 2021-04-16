@@ -1,6 +1,7 @@
 import nltk
 from pattern.en import pluralize, singularize
-
+#using the following import command if not work
+#from pattern.text.en import pluralize, singularize
 
 #### run the following once ###
 # pip install pattern
