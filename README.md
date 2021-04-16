@@ -19,7 +19,7 @@ FOPL example: Ex(X) like(X,cat) & like(X,dog)
 
 ### Parser setup
 To run the parser, you have to install two libraries: nltk and pattern. They can be found on Google.  
-> pip install pattern\
+> pip install pattern   
 The import command in the parser headline is:
 > from pattern.en import pluralize, singularize
 Use the following import command if not work:
