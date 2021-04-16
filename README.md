@@ -23,11 +23,14 @@ To run the parser, you have to install two libraries: nltk and pattern. They can
   
 The import command in the parser headline is:
 > from pattern.en import pluralize, singularize
+
 Use the following import command if not work:
 > from pattern.text.en import pluralize, singularize
+
 You also need to run the following once to download necessary data for nltk.
 > nltk.download('punkt')
 > nltk.download('averaged_perceptron_tagger')
+
 ### String to FOPL Converter
   Use regular expression to match the string.
 
