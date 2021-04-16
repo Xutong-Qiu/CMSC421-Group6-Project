@@ -17,8 +17,20 @@ As we have previously discussed, the parser will output a string representing a 
   * There's no convention for the name of predicates.\
 FOPL example: Ex(X) like(X,cat) & like(X,dog)
 
+### Parser setup
+To run the parser, you have to install two libraries: nltk and pattern. They can be found on Google.  
+> pip install pattern
+The import command in the parser headline is:
+> from pattern.en import pluralize, singularize
+Use the following import command if not work:
+> from pattern.text.en import pluralize, singularize
+You also need to run the following once to download necessary data for nltk.
+> nltk.download('punkt')
+> nltk.download('averaged_perceptron_tagger')
 ### String to FOPL Converter
   Use regular expression to match the string.
+
+
 
 
 ### coreClasses.py
