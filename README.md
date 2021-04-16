@@ -29,6 +29,7 @@ Use the following import command if not work:
 
 You also need to run the following once to download necessary data for nltk.
 > nltk.download('punkt')
+
 > nltk.download('averaged_perceptron_tagger')
 
 ### String to FOPL Converter
