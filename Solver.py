@@ -44,8 +44,26 @@ class Solver:
             answer = None
             lengthsupport=len(support)-1
             while lengthsupport != len(support):
-                print(len(support),lengthsupport)
+                #print(len(support),lengthsupport)
                 lengthsupport=len(support)
+                #resolving with the set of support
+                for i in range(0, len(support)):
+                    for j in range(i+1, len(support)):
+                        if i == j:
+                            continue
+                        result = support[i].resolution(support[j])
+                        print('result: {} | {} -> {}'.format(support[i],support[j],result))
+                        if  result != None:
+                            if result.is_empty():
+                                return 'True'
+                            else:#check if knowledge exists, if not, add
+                                exist = False
+                                for i in support:
+                                    if result == i:
+                                        exist = True
+                                if not exist:
+                                    support = np.append(support, result)
+                #resolving with premises
                 for i in range(0, len(support)):
                     for j in range(0, len(kbcopy)):
                         result = support[i].resolution(kbcopy[j])
@@ -57,7 +75,6 @@ class Solver:
                                 exist = False
                                 for i in support:
                                     if result == i:
-                                        #print('equal')
                                         exist = True
                                 if not exist:
                                     support = np.append(support, result)
