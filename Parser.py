@@ -125,6 +125,46 @@ def parser(sentence):
          nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
          fopl = modifier + '(' + nouns[0] + ') & ' + nouns[1] + '(' + nouns[0] + ')'
 
+    # New edit
+    elif(syntax == ['NOUN', 'VERB', 'NOUN', 'CONJ', 'NOUN', '.'] or
+        syntax == ['NOUN', 'VERB', 'DET', 'NOUN', 'CONJ', 'DET', 'NOUN', '.']): 
+        # Bill loves cheese and bacon.
+        # Tom buys a notebook and a pencil.
+        # 'CONJ' can be 'and', 'or'
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
+        conj = [item[0] for item in tags if item[1] == 'CONJ'][0]
+        if(conj == 'or'):
+            symbol = ' ∨ '
+        elif(conj == 'and'):
+            symbol = ' ∧ '
+        else:
+            return('invalid symbol')
+        fopl = verb +'(' + nouns[0] + ', ' + nouns[1] + ')' + symbol + ' ' + verb +'(' + nouns[0] + ', ' + nouns[2] + ')'
+
+    elif(syntax == ['DET', 'NOUN', 'DET', 'VERB', 'DET', 'NOUN', 'VERB', 'ADJ', '.'] or
+        syntax == ['DET', 'NOUN', 'DET', 'VERB', 'NOUN', 'VERB', 'ADJ', '.']):
+        # All student that finishes the homework is excellent.
+        # Some student that take mathematics is smart.
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
+        modifier = [item for item in tags if item[1] == 'ADJ'][0][0]
+        if (tokens[0] == 'All' or tokens[0] == 'Every'):
+            fopl = 'All(X) (' + nouns[0] + '(X) ' + '∧  ' + verb + '(X, ' + nouns[1] + ') -> ' + modifier + '(X))'
+        else:
+            fopl = 'Ex(X) (' + nouns[0] + '(X) ' + '∧  ' + verb + '(X, ' + nouns[1] + ') -> ' + modifier + '(X))'
+    
+    elif(syntax == ['DET', 'NOUN', 'DET', 'VERB', 'DET', 'NOUN', 'VERB', 'NOUN', '.'] or
+        syntax == ['DET', 'NOUN', 'DET', 'VERB', 'NOUN', 'VERB', 'NOUN', '.']):
+        # Every person that buys a computer plays games.
+        # Some student that take mathematics passes mathematics.
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
+        if (tokens[0] == 'All' or tokens[0] == 'Every'):
+            fopl = 'All(X) (' + nouns[0] + '(X) ' + '∧  ' + verbs[0] + '(X, ' + nouns[1] + ') -> ' + verbs[1] + '(X, ' + nouns[2] + '))'
+        else:
+            fopl = 'Ex(X) (' + nouns[0] + '(X) ' + '∧  ' + verbs[0] + '(X, ' + nouns[1] + ') -> ' + verbs[1] + '(X, ' + nouns[2] + '))'
+
     elif(new):  
         fopl = 'undefined'    
 
@@ -186,3 +226,10 @@ parser('Some cats catch mice.')
 #for sentence in sentences:
 #   parser(sentence)
 
+parser('Bill loves coffee and bacon.')
+parser('Bill loves coffee or bacon.')
+parser('Tom buys the a notebook and a pencil.')
+parser('All student that finishes the homework is excellent.')
+parser('Some student that take mathematics is smart.')
+parser('All person that buys a computer plays games.')
+parser('Some student that takes mathematics loves mathematics.')
