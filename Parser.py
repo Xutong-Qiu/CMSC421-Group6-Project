@@ -127,7 +127,9 @@ def parser(sentence):
 
     # New edit
     elif(syntax == ['NOUN', 'VERB', 'NOUN', 'CONJ', 'NOUN', '.'] or
-        syntax == ['NOUN', 'VERB', 'DET', 'NOUN', 'CONJ', 'DET', 'NOUN', '.']): 
+        syntax == ['NOUN', 'VERB', 'DET', 'NOUN', 'CONJ', 'DET', 'NOUN', '.'] or
+        syntax == ['DET', 'NOUN', 'VERB', 'NOUN', 'CONJ', 'NOUN', '.'] or
+        syntax == ['DET', 'NOUN', 'VERB', 'DET', 'NOUN', 'CONJ', 'DET', 'NOUN', '.']): 
         # Bill loves cheese and bacon.
         # Tom buys a notebook and a pencil.
         # 'CONJ' can be 'and', 'or'
@@ -155,7 +157,9 @@ def parser(sentence):
             fopl = 'Ex(X) (' + nouns[0] + '(X) ' + '∧  ' + verb + '(X, ' + nouns[1] + ') -> ' + modifier + '(X))'
     
     elif(syntax == ['DET', 'NOUN', 'DET', 'VERB', 'DET', 'NOUN', 'VERB', 'NOUN', '.'] or
-        syntax == ['DET', 'NOUN', 'DET', 'VERB', 'NOUN', 'VERB', 'NOUN', '.']):
+        syntax == ['DET', 'NOUN', 'DET', 'VERB', 'NOUN', 'VERB', 'NOUN', '.'] or 
+        syntax == ['DET', 'NOUN', 'DET', 'VERB', 'DET', 'NOUN', 'VERB', 'DET', 'NOUN', '.'] or
+        syntax == ['DET', 'NOUN', 'DET', 'VERB', 'NOUN', 'VERB', 'DET', 'NOUN', '.']):
         # Every person that buys a computer plays games.
         # Some student that take mathematics passes mathematics.
         nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
@@ -164,6 +168,13 @@ def parser(sentence):
             fopl = 'All(X) (' + nouns[0] + '(X) ' + '∧  ' + verbs[0] + '(X, ' + nouns[1] + ') -> ' + verbs[1] + '(X, ' + nouns[2] + '))'
         else:
             fopl = 'Ex(X) (' + nouns[0] + '(X) ' + '∧  ' + verbs[0] + '(X, ' + nouns[1] + ') -> ' + verbs[1] + '(X, ' + nouns[2] + '))'
+
+    elif(tokens[0] == 'If'):
+        # If Tom buys a car, then Mary is happy.
+        # Split the sentence, s[0] will be the if part, s[1] will be the then part
+        s = sentence.split(', then ')
+        s[0] = s[0][3:] + '.'
+        fopl = parser(s[0]) + ' -> ' + parser(s[1])
 
     elif(new):  
         fopl = 'undefined'    
@@ -233,3 +244,4 @@ parser('All student that finishes the homework is excellent.')
 parser('Some student that take mathematics is smart.')
 parser('All person that buys a computer plays games.')
 parser('Some student that takes mathematics loves mathematics.')
+parser('If Tom buys a car, then Mary is happy.')
