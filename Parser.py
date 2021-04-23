@@ -137,9 +137,9 @@ def parser(sentence):
         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
         conj = [item[0] for item in tags if item[1] == 'CONJ'][0]
         if(conj == 'or'):
-            symbol = ' ∨ '
+            symbol = ' | '
         elif(conj == 'and'):
-            symbol = ' ∧ '
+            symbol = ' & '
         else:
             return('invalid symbol')
         fopl = verb +'(' + nouns[0] + ', ' + nouns[1] + ')' + symbol + ' ' + verb +'(' + nouns[0] + ', ' + nouns[2] + ')'
@@ -152,9 +152,9 @@ def parser(sentence):
         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
         modifier = [item for item in tags if item[1] == 'ADJ'][0][0]
         if (tokens[0] == 'All' or tokens[0] == 'Every'):
-            fopl = 'All(X) (' + nouns[0] + '(X) ' + '∧  ' + verb + '(X, ' + nouns[1] + ') -> ' + modifier + '(X))'
+            fopl = 'All(X) (' + nouns[0] + '(X) ' + '&  ' + verb + '(X, ' + nouns[1] + ') -> ' + modifier + '(X))'
         else:
-            fopl = 'Ex(X) (' + nouns[0] + '(X) ' + '∧  ' + verb + '(X, ' + nouns[1] + ') -> ' + modifier + '(X))'
+            fopl = 'Ex(X) (' + nouns[0] + '(X) ' + '&  ' + verb + '(X, ' + nouns[1] + ') -> ' + modifier + '(X))'
     
     elif(syntax == ['DET', 'NOUN', 'DET', 'VERB', 'DET', 'NOUN', 'VERB', 'NOUN', '.'] or
         syntax == ['DET', 'NOUN', 'DET', 'VERB', 'NOUN', 'VERB', 'NOUN', '.'] or 
@@ -165,9 +165,9 @@ def parser(sentence):
         nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
         verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
         if (tokens[0] == 'All' or tokens[0] == 'Every'):
-            fopl = 'All(X) (' + nouns[0] + '(X) ' + '∧  ' + verbs[0] + '(X, ' + nouns[1] + ') -> ' + verbs[1] + '(X, ' + nouns[2] + '))'
+            fopl = 'All(X) (' + nouns[0] + '(X) ' + '&  ' + verbs[0] + '(X, ' + nouns[1] + ') -> ' + verbs[1] + '(X, ' + nouns[2] + '))'
         else:
-            fopl = 'Ex(X) (' + nouns[0] + '(X) ' + '∧  ' + verbs[0] + '(X, ' + nouns[1] + ') -> ' + verbs[1] + '(X, ' + nouns[2] + '))'
+            fopl = 'Ex(X) (' + nouns[0] + '(X) ' + '&  ' + verbs[0] + '(X, ' + nouns[1] + ') -> ' + verbs[1] + '(X, ' + nouns[2] + '))'
 
     elif(tokens[0] == 'If'):
         # If Tom buys a car, then Mary is happy.
