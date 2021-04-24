@@ -62,11 +62,6 @@ def parser(sentence):
          nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
          fopl = verb + '(' + nouns[0] + ', ' + nouns[1] + ')'
 
-    #elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens == ['All', '', 'are', '']):
-    
-    
-
-    
     elif(syntax == ['DET', 'NOUN', 'VERB', 'NOUN', '.']): 
         # All men are mortals. ∀(x) ((man(x)) → (mortal(x)))
         # No cat loves fish. ¬∃(X) ((cat(X) → (love(X, dog)))
@@ -97,14 +92,45 @@ def parser(sentence):
         nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB' or item[1] == 'ADP'][0]
         if(verb == 'is') or (verb == 'are'):
-                fopl = '~All(X) ((' + nouns[0] + '(X) -> ' + '(' + nouns[1] + '(X)))'
+            fopl = '~All(X) ((' + nouns[0] + '(X) -> ' + '(' + nouns[1] + '(X)))'
         else:
             fopl = '~All(X) ((' + nouns[0] + '(X) -> (' + verb + '(X, ' + nouns[1]+ ')))'
 
-    # elif(syntax == ['DET', 'NOUN', 'VERB', 'ADV', 'ADJ', '.']):
+    elif(syntax == ['DET', 'NOUN', 'VERB', 'ADV', 'ADJ', '.']):
         # All flowers are not fragrant.
-
-
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
+        adj = [item[0] for item in tags if item[1] == 'ADJ'][0]
+        adv = [item[0] for item in tags if item[1] == 'ADV'][0]
+        if verb == 'be':
+            if(tokens[0] == 'All' or tokens[0] == 'Every') and (adv == 'not'):
+                fopl = '~Ex(X) ((' + nouns[0] + '(X) -> ' + '(' + adj + '(X)))'
+            elif(tokens[0] == 'Some') and (adv == 'not'):
+                fopl = '~All(X) ((' + nouns[0] + '(X) -> ' + '(' + adj + '(X)))'
+            elif(tokens[0] == 'No') and (adv == 'not'):
+                fopl = 'All(X) ((' + nouns[0] + '(X) -> ' + '(' + adj + '(X)))'
+            else:
+                fopl = 'undefined'
+        else:
+            fopl = 'undefined'
+            
+    elif(syntax == ['DET', 'NOUN', 'VERB', 'ADV', 'VERB', '.']):
+        # All flowers are not fragrant.
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
+        adv = [item[0] for item in tags if item[1] == 'ADV'][0]
+        if verb[0] == 'do':
+            if(tokens[0] == 'All' or tokens[0] == 'Every') and (adv == 'not'):
+                fopl = '~Ex(X) ((' + nouns[0] + '(X) -> ' + '(' + verb[1] + '(X)))'
+            elif(tokens[0] == 'Some') and (adv == 'not'):
+                fopl = '~All(X) ((' + nouns[0] + '(X) -> ' + '(' + verb[1] + '(X)))'
+            elif(tokens[0] == 'No') and (adv == 'not'):
+                fopl = 'All(X) ((' + nouns[0] + '(X) -> ' + '(' + verb[1] + '(X)))'
+            else:
+                fopl = 'undefined'
+        else:
+            fopl = 'undefined'
+    
     elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens[0] == 'All' and 
     (tokens[2] == 'are' or tokens[2] == 'is')):
         # All water is precious.        All dogs are nice.
@@ -193,6 +219,8 @@ def parser(sentence):
     
     return fopl
 
+# Testing sentences
+'''
 parser('Cats are lazy.')
 parser('Socrates is mortal.')
 parser('Jack is a student.')
@@ -245,3 +273,8 @@ parser('Some student that take mathematics is smart.')
 parser('All person that buys a computer plays games.')
 parser('Some student that takes mathematics loves mathematics.')
 parser('If Tom buys a car, then Mary is happy.')
+parser('All flowers are not fragrant.')
+parser('Some flowers are not fragrant.')
+parser('No flower is not fragrant.')
+parser('No dog does not bark.')
+'''
