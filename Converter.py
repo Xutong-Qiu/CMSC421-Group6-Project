@@ -4,7 +4,7 @@ from coreClasses import *
 
 def string2fopl(str):
     tokens=re.split('\s',str)
-    #print(tokens)
+    print(tokens)
     return matchF(tokens)
 
 
@@ -20,6 +20,7 @@ def  matchQ(tokens):
         fopl = None
     return fopl
 
+#def  matchI(tokens):
 
 def  matchF(tokens):
     ele=tokens.pop(0)
@@ -35,33 +36,44 @@ def  matchF(tokens):
         return matchF(tokens).negate()
     #check p|F, p->F, p&F, p
     p = matchP([ele])
+    #print(p)
     if p !=None:
         if len(tokens)==0:
             return p
-        ele2=tokens.pop(0)
-        a = re.match('^&',ele2)
-        o = re.match('^\|',ele2)
-        imp = re.match('^->',ele2)
+        a = re.match('^&',tokens[0])
+        o = re.match('^\|',tokens[0])
+        imp = re.match('^->',tokens[0])
         if a:
+            tokens.pop(0)
             return FOPL(AND, p, matchF(tokens))
         elif o:
+            tokens.pop(0)
             return FOPL(OR, p, matchF(tokens))
         elif imp:
+            tokens.pop(0)
             return FOPL(IMP, p, matchF(tokens))
+        else:
+            #print(p)
+            return p
+    #check (F), (F)&F, (F)->F, (F)|F
     parenthesis = re.match('^\(',ele)
     if parenthesis:
         f = matchF(tokens)
-        ele2=tokens.pop(0)
-        if not re.match('^\)',ele2): ValueError('missing right parenthesis')
-        ele3=tokens.pop(0)
-        a = re.match('^&',ele2)
-        o = re.match('^\|',ele2)
-        imp = re.match('^->',ele2)
+        if len(tokens)==0 or not re.match('^\)',tokens[0]): ValueError('missing right parenthesis')
+        tokens.pop(0)
+        if len(tokens)==0:
+            return f
+        a = re.match('^&',tokens[0])
+        o = re.match('^\|',tokens[0])
+        imp = re.match('^->',tokens[0])
         if a:
+            tokens.pop(0)
             return FOPL(AND, f, matchF(tokens))
         elif o:
+            tokens.pop(0)
             return FOPL(OR, f, matchF(tokens))
         elif imp:
+            tokens.pop(0)
             return FOPL(IMP, f, matchF(tokens))
     ValueError('conversion failed: unsupported pattern')
 
@@ -93,11 +105,12 @@ def  matchP(tokens):
     elif single_const:
         p = Predicate(single_const.group(1), single_const.group(2), CONST)
     else:
-        p=None
+        return None
     if neg:
         p.negate()
     return FOPL(p, None, None)
 
-#string2fopl('All(X) (person(X) &  buy(X, computer) -> play(X, game))')
+#string2fopl('All(X) ( person(X) & buy(X,computer) -> play(X,game) )')
 #tokens = ['~likes(asfd)']
-#print(string2fopl('All(X) person(X) & buy(X,computer) -> play(X,game)'))
+#string2fopl('( person(X) )')
+print(string2fopl('All(X) ( person(X) & buy(X,computer) -> play(X,game) )'))
