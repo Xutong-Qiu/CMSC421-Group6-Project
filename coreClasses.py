@@ -199,7 +199,7 @@ class FOPL:
         elif self.op==NEG:
             return '~({})'.format(self.p1)
         elif self.op==IMP:
-            return '{}->{}'.format(self.p1,self.p2)
+            return '({}->{})'.format(self.p1,self.p2)
 
     def eliminateIMP(self):
         if self.op != IMP: raise ValueError('invalid call of eliminateIMP: operator should be IMP')

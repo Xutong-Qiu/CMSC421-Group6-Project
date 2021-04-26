@@ -5,7 +5,8 @@ from coreClasses import *
 def string2fopl(str):
     tokens=re.split('\s',str)
     print(tokens)
-    return matchF(tokens)
+    f, t = matchI(tokens)
+    return f
 
 
 def  matchQ(tokens):
@@ -20,61 +21,73 @@ def  matchQ(tokens):
         fopl = None
     return fopl
 
-#def  matchI(tokens):
+def  matchI(tokens):
+    f, t= matchF(tokens)
+    if len(t)==0:
+        return f
+    else:
+        imp = re.match('^->',t[0])
+        if not imp:
+            ValueError('missing ->')
+        else:
+            t.pop(0)
+            f1, t1 = matchF(t)
+        return FOPL(IMP, f, f1), t1
 
 def  matchF(tokens):
     ele=tokens.pop(0)
     q = matchQ([ele])
     if q:
         if len(tokens)==0:
-            return q
-        q.p2 = matchF(tokens)
-        return q
+            return q, tokens
+        q.p2 = matchF(tokens)[0]
+        return q, tokens
     #check ~
     neg=re.match('^~',ele)
     if neg:
-        return matchF(tokens).negate()
+        return matchF(tokens)[0].negate(), tokens
     #check p|F, p->F, p&F, p
     p = matchP([ele])
     #print(p)
     if p !=None:
         if len(tokens)==0:
-            return p
+            return p, tokens
         a = re.match('^&',tokens[0])
         o = re.match('^\|',tokens[0])
         imp = re.match('^->',tokens[0])
         if a:
             tokens.pop(0)
-            return FOPL(AND, p, matchF(tokens))
+            return FOPL(AND, p, matchF(tokens)[0]), tokens
         elif o:
             tokens.pop(0)
-            return FOPL(OR, p, matchF(tokens))
-        elif imp:
-            tokens.pop(0)
-            return FOPL(IMP, p, matchF(tokens))
+            return FOPL(OR, p, matchF(tokens)[0]), tokens
+        #elif imp:
+        #    tokens.pop(0)
+        #    return FOPL(IMP, p, matchF(tokens)[0]), tokens
         else:
             #print(p)
-            return p
+            return p, tokens
     #check (F), (F)&F, (F)->F, (F)|F
     parenthesis = re.match('^\(',ele)
     if parenthesis:
-        f = matchF(tokens)
+        f,t = matchF(tokens)
         if len(tokens)==0 or not re.match('^\)',tokens[0]): ValueError('missing right parenthesis')
         tokens.pop(0)
         if len(tokens)==0:
-            return f
+            return f, tokens
         a = re.match('^&',tokens[0])
         o = re.match('^\|',tokens[0])
         imp = re.match('^->',tokens[0])
         if a:
             tokens.pop(0)
-            return FOPL(AND, f, matchF(tokens))
+            return FOPL(AND, f, matchF(tokens)[0]), tokens
         elif o:
             tokens.pop(0)
-            return FOPL(OR, f, matchF(tokens))
-        elif imp:
-            tokens.pop(0)
-            return FOPL(IMP, f, matchF(tokens))
+            return FOPL(OR, f, matchF(tokens)[0]), tokens
+        #elif imp:
+        #    tokens.pop(0)
+        #    return FOPL(IMP, f, matchF(tokens)[0]), tokens
+    #matchI(tokens)
     ValueError('conversion failed: unsupported pattern')
 
 
@@ -113,4 +126,4 @@ def  matchP(tokens):
 #string2fopl('All(X) ( person(X) & buy(X,computer) -> play(X,game) )')
 #tokens = ['~likes(asfd)']
 #string2fopl('( person(X) )')
-print(string2fopl('All(X) ( person(X) & buy(X,computer) -> play(X,game) )'))
+print(string2fopl('person(X) & buy(X,computer) -> play(X,game)'))
