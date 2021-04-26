@@ -9,7 +9,7 @@ OR=2
 EXIST=3
 ALL=4
 NEG=5
-
+IMP=6
 #This is the predicate class. It supports one or two variable predicates.
 class Predicate:
     def __init__(self, name, data1, data1type, data2=None, data2type = None): 
@@ -198,9 +198,17 @@ class FOPL:
             return 'EXIST[{}]({})'.format(self.p2,self.p1)
         elif self.op==NEG:
             return '~({})'.format(self.p1)
+        elif self.op==IMP:
+            return '{}->{}'.format(self.p1,self.p2)
+
+    def eliminateIMP(self):
+        if self.op != IMP: raise ValueError('invalid call of eliminateIMP: operator should be IMP')
+        self.op = OR
+        self.p2=self.p2.negate
 
 
     def negate(self):
+        if self.op == IMP: raise ValueError('please call eliminatedIMP first')
         if isinstance(self.op,Predicate):
             self.op.negate()
         elif self.op == AND:
