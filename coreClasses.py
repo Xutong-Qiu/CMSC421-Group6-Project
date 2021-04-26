@@ -22,9 +22,9 @@ class Predicate:
 
     def __str__(self):
         if self.negation==False:
-            return '{}({})'.format(self.name,self.data1,self.data2)
+            return '{}({},{})'.format(self.name,self.data1,self.data2)
         else:
-            return '~{}({})'.format(self.name,self.data1,self.data2)
+            return '~{}({},{})'.format(self.name,self.data1,self.data2)
 
     def __eq__(self, predicate):
         if not isinstance(predicate, Predicate) or self.negation != predicate.negation:
@@ -193,13 +193,13 @@ class FOPL:
         elif self.op==OR:
             return 'OR({},{})'.format(self.p1,self.p2)
         elif self.op==ALL:
-            return 'ALL[{}]({})'.format(self.p2,self.p1)
+            return 'ALL[{}]({})'.format(self.p1,self.p2)
         elif self.op==EXIST:
-            return 'EXIST[{}]({})'.format(self.p2,self.p1)
+            return 'EXIST[{}]({})'.format(self.p1,self.p2)
         elif self.op==NEG:
             return '~({})'.format(self.p1)
         elif self.op==IMP:
-            return '{}->{}'.format(self.p1,self.p2)
+            return '({}->{})'.format(self.p1,self.p2)
 
     def eliminateIMP(self):
         if self.op != IMP: raise ValueError('invalid call of eliminateIMP: operator should be IMP')
