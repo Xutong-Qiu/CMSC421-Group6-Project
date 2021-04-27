@@ -21,6 +21,20 @@ def parser(sentence):
         noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN'][0]
         fopl = modifier +'(' + noun + ')'
 
+    elif(syntax == ['NOUN', 'VERB', 'NOUN', '.']):
+        verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
+        noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        if(verb == 'be'):
+            if(tags[0][0].lower() == noun[0]):
+                fopl = noun[1] + '(' + noun[0] + ')'
+            else:
+                fopl = 'All(X) ' + noun[0] + '(X) -> ' + noun[1] + '(X)'
+        else:
+            if(tags[0][0].lower() == noun[0]):
+                fopl = verb + '(' + noun[0] + ',' + noun[1] + ')'
+            else:
+                 fopl = 'All(X) ' + noun[0] + '(X) -> ' + verb + '(' + noun[0] + ',' + noun[1] + ')'
+
     elif(syntax == ['NOUN', 'VERB', 'ADJ', 'CONJ', 'ADJ', '.']): # Jack is smart and/or kind.
         # 'CONJ' can be 'and', 'or'
         modifiers = [item for item in tags if item[1] == 'ADJ']
@@ -38,9 +52,9 @@ def parser(sentence):
         # 'VERB' is 'is' 
          nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
         # noun = [item[0] for item in tags if item[1] == 'NOUN'][0]
-         verb = [item[0] for item in tags if item[1] == 'VERB'][0]
+         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
          det = [item[0] for item in tags if item[1] == 'DET'][0]
-         if verb == 'is' or verb == 'are':
+         if verb == 'be':
             fopl = nouns[1] + '(' + nouns[0] + ')'
          else:
             if det == 'all' or det == 'every':
@@ -220,10 +234,11 @@ def parser(sentence):
 # parser('Cats are lazy.')
 # parser('Socrates is mortal.')
 
-
+'''
 parser('Jack is a student.')
 parser('Cats love some fish.')
-
+parser('Humans are mammals.')
+parser('Sparrow is a bird.')
 parser('Socrates is mortal.')
 parser('Socrates is mortal and Greek.')
 parser('Socrates is mortal or Greek.')
@@ -275,4 +290,4 @@ parser('All flowers are not fragrant.')
 parser('Some flowers are not fragrant.')
 parser('No flower is not fragrant.')
 parser('No dog does not bark.')
-
+'''
