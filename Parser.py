@@ -19,7 +19,19 @@ def parser(sentence):
     if(syntax == ['NOUN', 'VERB', 'ADJ', '.']):  # Jack is smart.
         modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
         noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN'][0]
-        fopl = modifier +'(' + noun + ')'
+        if(tags[0][0].lower() == noun):
+            fopl = modifier +'(' + noun + ')'
+        else:
+            fopl = 'All(X) ' + noun + '(X) -> ' + modifier + '(X)'
+
+    elif(syntax == ['NOUN', 'VERB', 'ADV', 'ADJ', '.']):
+        modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
+        noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN'][0]
+        if(tags[0][0].lower() == noun):
+            fopl = '~' + modifier +'(' + noun + ')'
+        else:
+            fopl = '~Ex(X) ' + noun + '(X) -> ' + modifier + '(X)'
+
 
     elif(syntax == ['NOUN', 'VERB', 'NOUN', '.']):
         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
@@ -291,3 +303,4 @@ parser('Some flowers are not fragrant.')
 parser('No flower is not fragrant.')
 parser('No dog does not bark.')
 '''
+parser('Humans are mortal.')
