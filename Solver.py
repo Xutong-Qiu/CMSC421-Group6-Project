@@ -27,19 +27,20 @@ class Solver:
                     return True
         return False
     
-    def solvable(self, conjclauses):
-        for clauses in conjclauses:
-            for predicate in clauses.predicates:
+    def solvable(self, conjecture):
+        #print(self.uniPreName)
+        for clause in conjecture:
+            for predicate in clause.predicates:
                 if not self.contain_predicate(predicate):
                     print(predicate)
                     return False
         return True
 
-    def solve(self, conjclauses):
-        if not self.solvable(conjclauses):
+    def solve(self, conjectures):
+        if not self.solvable(conjectures):
             return 'not enough info'
         else:
-            support = conjclauses
+            support = conjectures
             kbcopy = np.array(self.kb)
             answer = None
             lengthsupport=len(support)-1
@@ -52,35 +53,37 @@ class Solver:
                         if i == j:
                             continue
                         result = support[i].resolution(support[j])
-                        print('result: {} | {} -> {}'.format(support[i],support[j],result))
+                        #print('not here')
+                        print('Step: {} + {} -> {}'.format(support[i],support[j],result))
                         if  result != None:
                             if result.is_empty():
                                 return 'True'
                             else:#check if knowledge exists, if not, add
                                 exist = False
-                                for i in support:
-                                    if result == i:
+                                for k in support:
+                                    if result == k:
                                         exist = True
                                 if not exist:
                                     support = np.append(support, result)
                 #resolving with premises
                 for i in range(0, len(support)):
                     for j in range(0, len(kbcopy)):
+                        #print('here12313131312',support[i],kbcopy[j])
                         result = support[i].resolution(kbcopy[j])
-                        print('result: {} | {} -> {}'.format(support[i],kbcopy[j],result))
+                        print('Step: {} + {} -> {}'.format(support[i],kbcopy[j],result))
                         if  result != None:
                             if result.is_empty():
                                 return 'True'
                             else:#check if knowledge exists, if not, add
                                 exist = False
-                                for i in support:
-                                    if result == i:
+                                for k in support:
+                                    if result == k:
                                         exist = True
                                 if not exist:
                                     support = np.append(support, result)
             return 'False'
 
-
+'''
     def res(self):
         kbcopy = np.array(self.kb)
         for i in range(0, len(kbcopy)):
@@ -96,7 +99,7 @@ class Solver:
                         kbcopy = np.append(kbcopy, result)
         return False
                 
-    
+    '''
 
 
 
