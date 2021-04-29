@@ -22,9 +22,9 @@ class Predicate:
 
     def __str__(self):
         if self.negation==False:
-            return '{}({},{})'.format(self.name,self.data1,self.data2)
+            return '{}({}({}),{}({}))'.format(self.name,self.data1,self.data1type,self.data2,self.data2type)
         else:
-            return '~{}({},{})'.format(self.name,self.data1,self.data2)
+            return '~{}({}({}),{}({}))'.format(self.name,self.data1,self.data1type,self.data2,self.data2type)
 
     def __eq__(self, predicate):
         if not isinstance(predicate, Predicate) or self.negation != predicate.negation:
@@ -56,7 +56,7 @@ class Predicate:
     #Tell whether two predicates are unifiable. If so, return the unifier as a list.
     #Example:
     #[True]: the two predicates are unifiable and no substitution is needed to unify.
-    #[True X Y CONST]: the two predicates are unifiable and X needs to be substituted by Y, where Y is a CONST
+    #[True X y CONST]: the two predicates are unifiable and X needs to be substituted by y, where y is a CONST
     #[False]: the two predicates are not unifiable
     def unifiable(self, other):
         if self.name == other.name:
@@ -84,13 +84,15 @@ class Predicate:
                         return [True, self.data1, other.data1, VAR, self.data2, other.data2, CONST]
                 else: return [False]
             else:
-                if self.data1type == CONST and self.data1 == other.data1:
+                if self.data1type == CONST and other.data1type == CONST and self.data1 == other.data1:
                     return [True]
+                elif self.data1type == CONST and other.data1type == VAR:
+                    return [True,other.data1,self.data1,CONST]
                 elif self.data1type == VAR:
                     if other.data1type==CONST:
                         return [True, self.data1, other.data1, CONST]
                     else: 
-                        return [True]
+                        return [True,self.data1, other.data1, VAR]
                 else:  
                     return [False]
         else: return [False]
@@ -158,18 +160,26 @@ class Clause:
     def is_empty(self):
         return  len(self.predicates)==0  
 
+    def substitution(self, sublist):
+        for i in self.predicates:
+            i.substitution(sublist)
+
     #This function carries out the resolution process. 
     def resolution(self, clause):
         for i in range(0,len(self.predicates)):
             for j in range(0,len(clause.predicates)):
                 if self.predicates[i].name==clause.predicates[j].name and self.predicates[i].negation != clause.predicates[j].negation:
-                    #print(i,j)
+                    #print(self.predicates[i])
                     sub=self.predicates[i].unifiable(clause.predicates[j])
+                    #print(sub,self.predicates[i], clause.predicates[j])
+                    if sub[0]==False:
+                        continue
                     result = np.append(self.predicates,clause.predicates)
                     result= np.delete(result,i)
                     result= np.delete(result,len(self.predicates)+j-1)
                     for n in result:
                         n.substitution(sub)
+                    #print('123')
                     return Clause(result)
         return None
 
@@ -189,28 +199,78 @@ class FOPL:
         if isinstance(self.op, Predicate):
             return '{}'.format(self.op)
         elif self.op==AND:
-            return 'AND({},{})'.format(self.p1,self.p2)
+            return '{} & {}'.format(self.p1,self.p2)
         elif self.op==OR:
-            return 'OR({},{})'.format(self.p1,self.p2)
+            return '{} ｜ {}'.format(self.p1,self.p2)
         elif self.op==ALL:
-            return 'ALL[{}]({})'.format(self.p1,self.p2)
+            return 'ALL[{}] {}'.format(self.p1,self.p2)
         elif self.op==EXIST:
-            return 'EXIST[{}]({})'.format(self.p1,self.p2)
+            return 'EXIST[{}] {}'.format(self.p1,self.p2)
         elif self.op==NEG:
             return '~({})'.format(self.p1)
         elif self.op==IMP:
-            return '({}->{})'.format(self.p1,self.p2)
+            return '({})->（{})'.format(self.p1,self.p2)
 
     def eliminateIMP(self):
         if self.op != IMP: raise ValueError('invalid call of eliminateIMP: operator should be IMP')
         self.op = OR
-        self.p2=self.p2.negate
+        self.p1.negate()
 
+    def eliminateALL(self):
+        if self.op != ALL: raise ValueError('invalid call of eliminateALL: operator should be ALL')    
+        self.op = self.p2.op
+        self.p1 = self.p2.p1
+        self.p2 = self.p2.p2
+
+    def distribute_or(self):
+        if self.op == OR: 
+            if not isinstance(self.p1.op,Predicate):
+                if self.p1.op==AND:
+                    p1_temp = self.p1
+                    p2_temp = self.p2
+                    self.op = AND
+                    self.p1 = FOPL(OR,p1_temp.p1,p2_temp)
+                    self.p2 = FOPL(OR,p1_temp.p2,p2_temp)
+                    self.p1.distribute_or()
+                    self.p2.distribute_or()
+            elif not isinstance(self.p2.op,Predicate):
+                if self.p2.op==AND:
+                    p1_temp = self.p1
+                    p2_temp = self.p2
+                    self.op = AND
+                    self.p1 = FOPL(OR,p1_temp,p2_temp.p1)
+                    self.p2 = FOPL(OR,p1_temp,p2_temp.p2)
+                    self.p1.distribute_or()
+                    self.p2.distribute_or()
+                    
+    def substitution(self, lst):
+        if self.op == EXIST: 
+            self.op = self.p2.op
+            self.p1 = self.p2.p1
+            self.p2 = self.p2.p2
+            self.substitution(lst)
+        elif self.op == AND:
+            self.p1.substitution(lst)
+            self.p2.substitution(lst)
+        elif self.op == OR:
+            self.p1.substitution(lst)
+            self.p2.substitution(lst)
+        elif self.op == NEG:
+            self.p1.negate()
+            self.p1.substitution(lst)
+        elif isinstance(self.op,Predicate):
+            self.op.substitution(lst)
+        elif self.op == ALL:
+            self.p2.substitution(lst)
+    def distribute_negation(self):
+        if self.op != NEG: raise ValueError('invalid call of distribute_negation: operator should be NEG')
+        self.p1.negate()
 
     def negate(self):
         if self.op == IMP: raise ValueError('please call eliminatedIMP first')
         if isinstance(self.op,Predicate):
             self.op.negate()
+            #print(self,self.op)
         elif self.op == AND:
             self.op = OR
             self.p1.negate()
@@ -223,13 +283,10 @@ class FOPL:
             self.p1
         elif self.op == EXIST:
             self.op = ALL
-            self.p1.negate()
+            self.p2.negate()
         elif self.op == ALL:
             self.op = EXIST
-            self.p1.negate()
-    
-
-   
+            self.p2.negate()
     
 
 

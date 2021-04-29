@@ -1,7 +1,34 @@
 from coreClasses import *
 from Solver import Solver
-from Parser import parser
-import nltk
+import Converter
+import Parser
+
+s=Solver()
+foplstring=Parser.parser('All humans are mortal.')
+fopl=Converter.string2fopl(foplstring)
+clauses1=Converter.fopl2clause(fopl)
+for i in clauses1:
+    #print('all humans are mortal')
+    #print(i)
+    s.add_knowledge(i)
+foplstring=Parser.parser('Amy is human.')
+fopl=Converter.string2fopl(foplstring)
+clauses=Converter.fopl2clause(fopl)
+for i in clauses:
+    #print('amy is human')
+    #print(i)
+    s.add_knowledge(i)
+foplstring=Parser.parser('Amy is mortal.')
+fopl=Converter.string2fopl(foplstring)
+fopl.negate()
+clauses2=Converter.fopl2clause(fopl)
+for i in clauses2:
+    #print('amy is mortal')
+    print('------')
+#print('result')
+#r1=clauses1[0].resolution(clauses2[0])
+print(s.solve(clauses2))
+#print(r1.resolution(clauses[0]))
 '''
 parser('Socrates is mortal.')
 parser('Socrates is mortal and Greek.')
@@ -32,7 +59,7 @@ parser('Some cats catch mice.')
 #for sentence in sentences:
 #   parser(sentence)
 
-
+'''
 #debug code
 a = Predicate("likes", 'X', VAR)#likes(X)
 nota=Predicate("likes", 'X', VAR)
@@ -58,7 +85,7 @@ print(s.solve([clause4]))
 s.add_knowledge(clause2)
 #print(s.res())
 #print(a.negation)
-'''
+
 #s=Solver()
 test3=Clause(np.array([a]))
 test4=Clause(np.array([b]))
@@ -74,9 +101,7 @@ y=FOPL(ALL, x, 'X')
 y.negate()
 #y.negate()
 #print(y)
-'''
 
-'''
 ab3 = Clause([Predicate("ab", 'b', CONST, 'c', CONST)])#ab(b,c)
 ab2 = Clause([Predicate("ab", 'a', CONST, 'b', CONST)])#ab(a,b)
 in1=Clause([Predicate("in", 'e', CONST, 'f', CONST)])#in(e,f)
@@ -93,4 +118,5 @@ rt7 = Predicate("rt", 'X1', VAR, 'Y1', VAR)#rt(X1,Y1)
 rt7.negate()
 for i in s.uniPre:
     print(i)
+
 '''
