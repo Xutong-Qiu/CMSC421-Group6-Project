@@ -28,10 +28,14 @@ def parser(sentence):
         modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
         noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN'][0]
         if(tags[0][0].lower() == noun):
-            fopl = '~' + modifier +'(' + noun + ')'
+            fopl = '~ ' + modifier +'(' + noun + ')'
         else:
-            fopl = '~Ex(X) ' + noun + '(X) -> ' + modifier + '(X)'
+            fopl = 'All(X) ~ ( ' + noun + '(X) -> ' + modifier + '(X) )'
 
+    elif(syntax == ['NOUN', 'VERB', 'DET', 'ADJ', '.']):
+        modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
+        noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN'][0]
+        fopl = modifier +'(' + noun + ')'
 
     elif(syntax == ['NOUN', 'VERB', 'NOUN', '.']):
         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
@@ -101,9 +105,9 @@ def parser(sentence):
                 fopl = 'Ex(X) ' + nouns[0] + '(X) -> ' + verb + '(X,' + nouns[1]+ ')'
         elif det == 'No':
             if verb == 'be':
-                fopl = '~Ex(X) ' + nouns[0] + '(X) -> ' + nouns[1] + '(X)'
+                fopl = 'All(X) ~ ( ' + nouns[0] + '(X) -> ' + nouns[1] + '(X) )'
             else:
-                fopl = '~Ex(X) ' + nouns[0] + '(X) -> ' + verb + '(X,' + nouns[1]+ ')'
+                fopl = 'All(X) ~ ( ' + nouns[0] + '(X) -> ' + verb + '(X,' + nouns[1]+ ') )'
 
     elif((syntax == ['ADV', 'DET', 'NOUN', 'VERB', 'NOUN', '.'] or 
     syntax == ['ADV', 'DET', 'NOUN', 'ADP', 'NOUN', '.']) and
@@ -113,9 +117,9 @@ def parser(sentence):
         nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB' or item[1] == 'ADP'][0]
         if(verb == 'is') or (verb == 'are'):
-            fopl = '~All(X) ' + nouns[0] + '(X) -> ' + nouns[1] + '(X)'
+            fopl = 'Ex(X) ~ ( ' + nouns[0] + '(X) -> ' + nouns[1] + '(X) )'
         else:
-            fopl = '~All(X) ' + nouns[0] + '(X) -> ' + verb + '(X,' + nouns[1]+ ')'
+            fopl = 'Ex(X) ~ ( ' + nouns[0] + '(X) -> ' + verb + '(X,' + nouns[1]+ ') )'
 
     elif(syntax == ['DET', 'NOUN', 'VERB', 'ADV', 'ADJ', '.']):
         # All flowers are not fragrant.
@@ -125,9 +129,9 @@ def parser(sentence):
         adv = [item[0] for item in tags if item[1] == 'ADV'][0]
         if verb == 'be':
             if(tokens[0] == 'All' or tokens[0] == 'Every') and (adv == 'not'):
-                fopl = '~Ex(X) ' + nouns[0] + '(X) -> ' + adj + '(X)'
+                fopl = 'All(X) ~ ( ' + nouns[0] + '(X) -> ' + adj + '(X) )'
             elif(tokens[0] == 'Some') and (adv == 'not'):
-                fopl = '~All(X) ' + nouns[0] + '(X) -> ' + adj + '(X)'
+                fopl = 'Ex(X) ~ ( ' + nouns[0] + '(X) -> ' + adj + '(X) )'
             elif(tokens[0] == 'No') and (adv == 'not'):
                 fopl = 'All(X) ' + nouns[0] + '(X) -> ' + adj + '(X)'
             else:
@@ -142,9 +146,9 @@ def parser(sentence):
         adv = [item[0] for item in tags if item[1] == 'ADV'][0]
         if verb[0] == 'do':
             if(tokens[0] == 'All' or tokens[0] == 'Every') and (adv == 'not'):
-                fopl = '~Ex(X) ' + nouns[0] + '(X) -> ' + verb[1] + '(X)'
+                fopl = 'All(X) ~ ( ' + nouns[0] + '(X) -> ' + verb[1] + '(X) )'
             elif(tokens[0] == 'Some') and (adv == 'not'):
-                fopl = '~All(X) ' + nouns[0] + '(X) -> ' + verb[1] + '(X)'
+                fopl = 'Ex(X) ~ ( ' + nouns[0] + '(X) -> ' + verb[1] + '(X) )'
             elif(tokens[0] == 'No') and (adv == 'not'):
                 fopl = 'All(X) ' + nouns[0] + '(X) -> ' + verb[1] + '(X)'
             else:
@@ -223,6 +227,58 @@ def parser(sentence):
         s = sentence.split(', then ')
         s[0] = s[0][3:] + '.'
         fopl = parser(s[0]) + ' -> ' + parser(s[1])
+
+    elif(syntax == ['NOUN', 'VERB', 'ADV', 'VERB', 'DET', 'NOUN', 'VERB', '.']):
+        if lemmatizer.lemmatize(tags[1][0], 'v') == 'do' and tags[2][0] == 'not':
+            nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+            verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
+
+            fopl = 'All(X) ' + verbs[2] + '(' + nouns[1] + ',X)' + ' -> ~ ' + verbs[1] + '(' + nouns[0] + ',X)'
+        else:
+            fopl = 'undefined'    
+
+    elif(syntax == ['NOUN', 'VERB', 'DET', 'NOUN', 'VERB', 'ADV', 'VERB', '.']):
+        if lemmatizer.lemmatize(tags[4][0], 'v') == 'do' and tags[5][0] == 'not':
+            nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+            verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
+
+            fopl = 'All(X) ~ ' + verbs[2] + '(' + nouns[1] + ',X)' + ' -> ' + verbs[0] + '(' + nouns[0] + ',X)'
+        else:
+            fopl = 'undefined'      
+
+    elif(syntax == ['DET', 'NOUN', 'NOUN', 'VERB', 'NOUN', 'CONJ', 'NOUN', '.']):
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
+        conj = [item[0] for item in tags if item[1] == 'CONJ'][0]
+        symbol = ''
+        if(conj == 'or'):
+            symbol = ' | '
+        elif(conj == 'and'):
+            symbol = ' & '
+        else:
+            return('invalid symbol')
+        if(verb == 'be'):
+            fopl = ('All(X) ' + nouns[1] + '(X,' + nouns[0] + ')' + ' -> ' 
+            + nouns[2] + '(X)' + symbol + nouns[3] + '(X)')
+        else:
+            fopl = 'undefined'
+
+    elif(syntax == ['NOUN', 'CONJ', 'NOUN', 'CONJ', 'NOUN', 'VERB', 'NOUN', 'ADP', 'NOUN']):
+        conjs = [item[0] for item in tags if item[1] == 'CONJ']
+        verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        symbols = [' & ', ' & ']
+        for i in range(0, 2):
+            if conjs[i] != 'or' and conjs[i] != 'and':
+                return('invalid symbol')
+            if(conjs[i] == 'or'):
+                symbols[i] = ' | '
+        if verb == 'be':
+            fopl = (nouns[3] + '(' + nouns[0] + ',' + nouns[4] + ')'
+                    + symbols[0] + nouns[3] + '(' + nouns[1] + ',' + nouns[4]
+                    + ')' + symbols[1] + nouns[3] + '(' + nouns[2] + ',' + nouns[4] + ')')
+        else:
+            fopl = 'undefined'
 
     elif(new):  
         fopl = 'undefined'    
@@ -303,4 +359,14 @@ parser('Some flowers are not fragrant.')
 parser('No flower is not fragrant.')
 parser('No dog does not bark.')
 '''
-parser('Humans are mortal.')
+
+# Sample Result
+'''
+parser('All skiers love snow.')
+parser('No climber likes rain.')
+parser('Tony likes rain and snow.')
+parser('Bill does not like whatever Tony likes.')
+parser('Bill likes whatever Tony does not like.')
+parser('All Alpine members are skiers or climbers.')
+parser('Tony and Bill and John are members of Alpine')
+'''
