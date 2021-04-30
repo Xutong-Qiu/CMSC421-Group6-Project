@@ -28,7 +28,7 @@ def parser(sentence):
         modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
         noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN'][0]
         if(tags[0][0].lower() == noun):
-            fopl = '~ ' + modifier +'(' + noun + ')'
+            fopl = '~' + modifier +'(' + noun + ')'
         else:
             fopl = 'All(X) ~ ( ' + noun + '(X) -> ' + modifier + '(X) )'
 
@@ -105,9 +105,9 @@ def parser(sentence):
                 fopl = 'Ex(X) ' + nouns[0] + '(X) -> ' + verb + '(X,' + nouns[1]+ ')'
         elif det == 'No':
             if verb == 'be':
-                fopl = 'All(X) ~ ( ' + nouns[0] + '(X) -> ' + nouns[1] + '(X) )'
+                fopl = 'All(X) ' + nouns[0] + '(X) -> ~' + nouns[1] + '(X)'
             else:
-                fopl = 'All(X) ~ ( ' + nouns[0] + '(X) -> ' + verb + '(X,' + nouns[1]+ ') )'
+                fopl = 'All(X) ' + nouns[0] + '(X) -> ~' + verb + '(X,' + nouns[1]+ ')'
 
     elif((syntax == ['ADV', 'DET', 'NOUN', 'VERB', 'NOUN', '.'] or 
     syntax == ['ADV', 'DET', 'NOUN', 'ADP', 'NOUN', '.']) and
@@ -233,7 +233,7 @@ def parser(sentence):
             nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
             verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
 
-            fopl = 'All(X) ' + verbs[2] + '(' + nouns[1] + ',X)' + ' -> ~ ' + verbs[1] + '(' + nouns[0] + ',X)'
+            fopl = 'All(X) ' + verbs[2] + '(' + nouns[1] + ',X)' + ' -> ~' + verbs[1] + '(' + nouns[0] + ',X)'
         else:
             fopl = 'undefined'    
 
@@ -242,7 +242,7 @@ def parser(sentence):
             nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
             verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
 
-            fopl = 'All(X) ~ ' + verbs[2] + '(' + nouns[1] + ',X)' + ' -> ' + verbs[0] + '(' + nouns[0] + ',X)'
+            fopl = 'All(X) ~' + verbs[2] + '(' + nouns[1] + ',X)' + ' -> ' + verbs[0] + '(' + nouns[0] + ',X)'
         else:
             fopl = 'undefined'      
 
@@ -263,7 +263,7 @@ def parser(sentence):
         else:
             fopl = 'undefined'
 
-    elif(syntax == ['NOUN', 'CONJ', 'NOUN', 'CONJ', 'NOUN', 'VERB', 'NOUN', 'ADP', 'NOUN']):
+    elif(syntax == ['NOUN', 'CONJ', 'NOUN', 'CONJ', 'NOUN', 'VERB', 'NOUN', 'ADP', 'NOUN', '.']):
         conjs = [item[0] for item in tags if item[1] == 'CONJ']
         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
         nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
@@ -361,12 +361,11 @@ parser('No dog does not bark.')
 '''
 
 # Sample Result
-'''
+
 parser('All skiers love snow.')
 parser('No climber likes rain.')
 parser('Tony likes rain and snow.')
 parser('Bill does not like whatever Tony likes.')
 parser('Bill likes whatever Tony does not like.')
 parser('All Alpine members are skiers or climbers.')
-parser('Tony and Bill and John are members of Alpine')
-'''
+parser('Tony and Bill and John are members of Alpine.')
