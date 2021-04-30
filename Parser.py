@@ -109,6 +109,16 @@ def parser(sentence):
             else:
                 fopl = 'All(X) ' + nouns[0] + '(X) -> ~' + verb + '(X,' + nouns[1]+ ')'
 
+    elif(syntax == ['DET', 'NOUN', 'VERB', 'VERB', '.']):
+        noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN'][0]
+        verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
+        fopl = 'All(X) ' + noun + '(X) -> ' + verbs[0] + '(X,' + verbs[1] + ')'
+
+    elif(syntax == ['NOUN', 'VERB', 'ADV', 'VERB', 'NOUN', '.']):
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
+        fopl = '~' + verbs[1] + '(' + nouns[0] + ',' + nouns[1] + ')'
+
     elif((syntax == ['ADV', 'DET', 'NOUN', 'VERB', 'NOUN', '.'] or 
     syntax == ['ADV', 'DET', 'NOUN', 'ADP', 'NOUN', '.']) and
     ((tokens[0] == 'Not' and tokens[1] == 'all') or ((tokens[0] == 'Not' and tokens[1] == 'every')))):
@@ -361,11 +371,15 @@ parser('No dog does not bark.')
 '''
 
 # Sample Result
-
-parser('All skiers love snow.')
+'''
+parser('Every skier likes snow.')
 parser('No climber likes rain.')
 parser('Tony likes rain and snow.')
 parser('Bill does not like whatever Tony likes.')
 parser('Bill likes whatever Tony does not like.')
 parser('All Alpine members are skiers or climbers.')
 parser('Tony and Bill and John are members of Alpine.')
+
+parser('Tom likes rain.')
+parser('Tom does not like snow.')
+'''
