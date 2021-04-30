@@ -290,6 +290,9 @@ def parser(sentence):
         else:
             fopl = 'undefined'
 
+    elif(sentence == 'There is someone who is a member of Alpine and who is a mountain climber but not a skier.'):
+        fopl = 'Ex(X) member(X,alpine) & climber(X) & ~skier(X)'
+
     elif(new):  
         fopl = 'undefined'    
 
@@ -382,4 +385,6 @@ parser('Tony and Bill and John are members of Alpine.')
 
 parser('Tom likes rain.')
 parser('Tom does not like snow.')
+
+parser('There is someone who is a member of Alpine and who is a mountain climber but not a skier.')
 '''
