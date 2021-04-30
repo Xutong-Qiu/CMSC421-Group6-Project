@@ -32,6 +32,7 @@ def  matchI(tokens):
         f,t = matchI(tokens) 
         q.p2 = f
         return q, t
+    #[ele]+tokens)
     f, t= matchF([ele]+tokens)  
     if len(t)==0:
         return f,t
@@ -60,7 +61,7 @@ def  matchF(tokens):
         f.negate()
         return f, t
     #check p|F, p->F, p&F, p
-    p = matchP([ele])
+    p, t = matchP([ele])
     #print(p)
     if p !=None:
         if len(tokens)==0:
@@ -68,7 +69,7 @@ def  matchF(tokens):
             return p, tokens
         a = re.match('^&',tokens[0])
         o = re.match('^\|',tokens[0])
-        #imp = re.match('^->',tokens[0])
+        imp = re.match('^->',tokens[0])
         if a:
             tokens.pop(0)
             f,t= matchF(tokens)
@@ -77,12 +78,12 @@ def  matchF(tokens):
             tokens.pop(0)
             f,t= matchF(tokens)
             return FOPL(OR, p, f), t
-        #elif imp:
-        #    tokens.pop(0)
-        #    return FOPL(IMP, p, matchF(tokens)[0]), tokens
+        elif imp:
+            tokens.pop(0)
+            return FOPL(IMP, p, matchF(tokens)[0]), tokens
         else:
             #print(p)
-            return p, tokens
+            return p, t
     #check (F), (F)&F, (F)->F, (F)|F
     parenthesis = re.match('^\(',ele)
     if parenthesis:
@@ -102,10 +103,11 @@ def  matchF(tokens):
             tokens.pop(0)
             f1,t1= matchF(tokens)
             return FOPL(OR, f, f1), t1
-        #elif imp:
-        #    tokens.pop(0)
-        #    return FOPL(IMP, f, matchF(tokens)[0]), tokens
-    #return matchI(tokens)
+        elif imp:
+            tokens.pop(0)
+            f1,t1= matchF(tokens)
+            return FOPL(IMP, f, f1), t1
+
     ValueError('conversion failed: unsupported pattern')
 
 
@@ -136,10 +138,10 @@ def  matchP(tokens):
     elif single_const:
         p = Predicate(single_const.group(1), single_const.group(2), CONST)
     else:
-        return None
+        return None, tokens
     if neg:
         p.negate()
-    return FOPL(p, None, None)
+    return FOPL(p, None, None), tokens
 
 
 
@@ -227,7 +229,7 @@ def breakintoClause(fopl,clauses):
 #tokens = ['~likes(asfd)']  Ex(Y) animal(Y) & loves(X,Y)
 #string2fopl('( person(X) )')
 #print(matchQ(['Ex(Y)']))   All(X) human(X) -> mortal(X)
-#f= string2fopl('All(X) person(X) & buy(X,computer) -> play(X,game)')
+#f= string2fopl('All(X) ~ ( climber(X) -> like(X,rain) )')
 #f= string2fopl('All(X) human(X) -> mortal(X)')
 #f1= string2fopl('Ex(Y) likes(Y,X)')
 #print(f)

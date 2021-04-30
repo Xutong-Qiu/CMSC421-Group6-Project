@@ -289,7 +289,6 @@ def parser(sentence):
                     + ')' + symbols[1] + nouns[3] + '(' + nouns[2] + ',' + nouns[4] + ')')
         else:
             fopl = 'undefined'
-
     elif(sentence == 'There is someone who is a member of Alpine and who is a mountain climber but not a skier.'):
         fopl = 'Ex(X) member(X,alpine) & climber(X) & ~skier(X)'
 
@@ -300,12 +299,12 @@ def parser(sentence):
         return ('Syntax not recognized: ', syntax)
         
     if(verbose):
-        print('sentence: ', sentence)
-        print('tokens: ', tokens)
-        print('standard tags: ', standardTags)
-        print('simple tags:  ', tags)
-        print('syntax: ', syntax)
-        print('fopl: ', fopl)
+        #print('sentence: ', sentence)
+        #print('tokens: ', tokens)
+        #print('standard tags: ', standardTags)
+        #print('simple tags:  ', tags)
+        #print('syntax: ', syntax)
+        #print('fopl: ', fopl)
         print()
     
     return fopl
@@ -328,7 +327,6 @@ parser('A dog chases a car.')
 parser('Socrates is a mortal philospher.')
 parser('Joe climbs a ladder.')
 parser('Joe climbs a ladder.')
-
 print('***Multiple sentences***\n')
 text = 'A dog chases a car. Socrates is a mortal philospher. '
 sentences = nltk.sent_tokenize(text)
@@ -346,19 +344,15 @@ parser('Some cats catch mice.')
 parser('Every dog loves humans.')
 parser('Not all cats like dogs.')
 parser('Not every cat likes dogs.')
-
-
 parser('All men are mortals.')
 parser('No cats loves dog.')
 # parser('A cat loves fish.') # ['DET', 'NOUN', 'VERB', 'ADJ', '.'], nlkt library error.
 parser('Some cats catch mice.')
-
 # syllogism
 #text = 'All people are mortal. Socrates is a person. Therefore, Socrates is mortal.'
 #sentences = nltk.sent_tokenize(text)
 #for sentence in sentences:
 #   parser(sentence)
-
 parser('Bill loves coffee and bacon.')
 parser('Bill loves coffee or bacon.')
 parser('Tom buys the a notebook and a pencil.')
@@ -382,9 +376,7 @@ parser('Bill does not like whatever Tony likes.')
 parser('Bill likes whatever Tony does not like.')
 parser('All Alpine members are skiers or climbers.')
 parser('Tony and Bill and John are members of Alpine.')
-
-parser('Tom likes rain.')
-parser('Tom does not like snow.')
-
 parser('There is someone who is a member of Alpine and who is a mountain climber but not a skier.')
+parser('Tony likes rain.')
+parser('Tony does not like snow.')
 '''
