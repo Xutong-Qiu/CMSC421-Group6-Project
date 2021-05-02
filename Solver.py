@@ -36,17 +36,26 @@ class Solver:
                     return False
         return True
 
+    def copykb(self):
+        a = np.array([])
+        for i in self.kb:
+            #print(i,i.copy())
+            a = np.append(a,i.copy())
+        return a
+
     def solve(self, conjectures):
         if not self.solvable(conjectures):
             return 'not enough info'
         else:
             support = conjectures
-            kbcopy = np.array(self.kb)
+            kbcopy = self.copykb()
             answer = None
             lengthsupport=len(support)-1
+            lengthkbcopy = len(kbcopy)-1
             while lengthsupport != len(support):
                 #print(len(support),lengthsupport)
                 lengthsupport=len(support)
+                lengthkbcopy = len(kbcopy)
                 #resolving with the set of support
                 for i in range(0, len(support)):
                     for j in range(i+1, len(support)):

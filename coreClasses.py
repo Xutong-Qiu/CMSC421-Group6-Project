@@ -50,6 +50,11 @@ class Predicate:
             else: return False
         else: return False
 
+    def copy(self):
+        a = Predicate(self.name, self.data1, self.data1type, self.data2, self.data2type)
+        a.negation = self.negation
+        return a
+
     def negate(self):
         self.negation = not self.negation
     
@@ -61,18 +66,27 @@ class Predicate:
     def unifiable(self, other):
         if self.name == other.name:
             if self.data2type != None:
-                if self.data1type == CONST and (self.data1 == other.data1) and (self.data2type == CONST) and (self.data2 == other.data2):
-                    return [True]
+                if self.data1type == CONST and  (self.data2type == CONST):
+                    if  other.data1type == CONST and  (other.data2type == CONST) and self.data2 == other.data2 and self.data1 == other.data1:
+                        return [True]
+                    elif other.data1type == CONST and  other.data2type == VAR and self.data1 == other.data1:
+                        return [True, other.data2, self.data2, CONST]
+                    elif other.data1type == VAR and  other.data2type == CONST and self.data2 == other.data2:
+                        return [True, other.data1, self.data1, CONST]
+                    elif other.data1type == VAR and  other.data2type == VAR:
+                        return [True, other.data1, self.data1, CONST, other.data2, self.data2, CONST]
+                    else:
+                        return [False]
                 elif self.data1type == VAR and (self.data2type == CONST) and (self.data2 == other.data2):
                     if other.data1type==CONST:
                         return [True, self.data1, other.data1,CONST]
                     else: 
-                        return [True]
+                        return [True, self.data1, other.data1, VAR]
                 elif self.data2type == VAR and (self.data1type == CONST) and (self.data1 == other.data1):
                     if other.data2type==CONST:
                         return [True, self.data2, other.data2, CONST]
                     else: 
-                        return [False]
+                        return [True, self.data2, other.data2, VAR]
                 elif self.data1type == VAR and (self.data2type == VAR):
                     if other.data1type==CONST and other.data2type==CONST:
                         return [True, self.data1, other.data1, CONST, self.data2, other.data2, CONST]
@@ -100,23 +114,23 @@ class Predicate:
     #The function takes in a sublist and do the substitution.
     #The sublist is returned by "unifiable"
     def substitution(self, sublist):
-        if not sublist[0]: raise ValueError('invalid sublist')
+        if not sublist[0]: raise ValueError('invalid sublist: [False]')
         if len(sublist) >= 4:
             if self.data1== sublist[1]:
-                if self.data1type==CONST: raise ValueError('error replacing constant') 
+                if self.data1type==CONST: raise ValueError('error replacing constant. sublist:{}, predicate:{}'.format(sublist, self)) 
                 self.data1=sublist[2]
                 self.data1type = sublist[3]
             if self.data2== sublist[1]:
-                if self.data2type==CONST: raise ValueError('error replacing constant') 
+                if self.data2type==CONST: raise ValueError('error replacing constant. sublist:{}, predicate:{}'.format(sublist, self)) 
                 self.data2=sublist[2]
                 self.data2type = sublist[3]
         if len(sublist) > 4:
             if self.data1== sublist[4]:
-                if self.data1type==CONST: raise ValueError('error replacing constant') 
+                if self.data1type==CONST: raise ValueError('error replacing constant. sublist:{}, predicate:{}'.format(sublist, self)) 
                 self.data1=sublist[5]
                 self.data1type = sublist[6]
             if self.data2== sublist[4]:
-                if self.data2type==CONST: raise ValueError('error replacing constant') 
+                if self.data2type==CONST: raise ValueError('error replacing constant. sublist:{}, predicate:{}'.format(sublist, self)) 
                 self.data2=sublist[5]
                 self.data2type = sublist[6]            
  
@@ -131,7 +145,19 @@ class Clause:
         for i in self.predicates:
             if i == predicate:
                 return
-        np.append(self.predicates, predicate)
+        self.predicates=np.append(self.predicates, predicate)
+
+    def copy(self):
+        a = np.array([])
+        for i in self.predicates:
+            a=np.append(a,i.copy())
+        return Clause(a)
+
+    def contain_predicate(self,predicate):
+        for i in self.predicates:
+            if i == predicate:
+                return True
+        return False
 
     def __eq__(self, clause):
         if not isinstance(clause, Clause):
@@ -142,6 +168,13 @@ class Clause:
             for i in self.predicates:
                 exist = False
                 for j in clause.predicates:
+                    if i == j:
+                        exist = True
+                if not exist:
+                    return False
+            for i in clause.predicates:
+                exist = False
+                for j in self.predicates:
                     if i == j:
                         exist = True
                 if not exist:
@@ -174,13 +207,25 @@ class Clause:
                     #print(sub,self.predicates[i], clause.predicates[j])
                     if sub[0]==False:
                         continue
-                    result = np.append(self.predicates,clause.predicates)
+                    result = np.array([])
+                    for n in self.predicates:
+                        result = np.append(result,n.copy())
+                    for n in clause.predicates:
+                        result = np.append(result,n.copy())
                     result= np.delete(result,i)
                     result= np.delete(result,len(self.predicates)+j-1)
-                    for n in result:
+                    finalresult = np.array([])
+                    for n in range(0,len(result)):
+                        dup = False
+                        for m in range(n+1,len(result)):
+                            if result[n] == result[m]:
+                                dup = True
+                        if not dup:
+                            finalresult = np.append(finalresult,result[n])
+                    for n in finalresult:
                         n.substitution(sub)
                     #print('123')
-                    return Clause(result)
+                    return Clause(finalresult)
         return None
 
 #This is the first order predicate logic class which will be used by parser and intepreter.
@@ -267,7 +312,9 @@ class FOPL:
         self.p1.negate()
 
     def negate(self):
-        if self.op == IMP: raise ValueError('please call eliminatedIMP first')
+        if self.op == IMP: #raise ValueError('please call eliminatedIMP first')
+            self.eliminateIMP()
+            self.negate()
         if isinstance(self.op,Predicate):
             self.op.negate()
             #print(self,self.op)
