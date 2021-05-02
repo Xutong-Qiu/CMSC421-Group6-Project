@@ -5,14 +5,13 @@ from nltk.stem import WordNetLemmatizer
 # nltk.download('punkt')
 # nltk.download('averaged_perceptron_tagger')
 
-verbose = True
 new = True     # set to true when analyzing new syntax
 lemmatizer = WordNetLemmatizer()
 
 def parser(sentence):
     
     tokens = nltk.word_tokenize(sentence)   
-    standardTags = nltk.tag.pos_tag(tokens)               # the standard tag set has a zillion tags   
+    # standardTags = nltk.tag.pos_tag(tokens)               # the standard tag set has a zillion tags   
     tags = nltk.tag.pos_tag(tokens, tagset='universal')   # 'universal' is a simplified tag set
     syntax = [item[1] for item in tags]
 
@@ -319,14 +318,13 @@ def parser(sentence):
     else:
         return ('Syntax not recognized: ', syntax)
         
-    if(verbose):
-        print('sentence: ', sentence)
-        print('tokens: ', tokens)
-        print('standard tags: ', standardTags)
-        print('simple tags:  ', tags)
-        print('syntax: ', syntax)
-        print('fopl: ', fopl)
-        print()
+    # print('sentence: ', sentence)
+    # print('tokens: ', tokens)
+    # print('standard tags: ', standardTags)
+    # print('simple tags:  ', tags)
+    # print('syntax: ', syntax)
+    # print('fopl: ', fopl)
+    # print()
     
     return fopl
 
@@ -400,8 +398,8 @@ parser('Tony and Bill and John are members of Alpine.')
 
 parser('Tom likes rain.')
 parser('Tom does not like snow.')
-'''
+
 parser('There is someone who is a member of Alpine and who is a climber but not a skier.')
 parser('There is someone who is a member of Alpine and who is a skier and also a climber.')
-parser('Someone is Alphinemember and skier but not climber.')
+'''
 
