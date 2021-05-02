@@ -289,7 +289,6 @@ def parser(sentence):
                     + ')' + symbols[1] + nouns[3] + '(' + nouns[2] + ',' + nouns[4] + ')')
         else:
             fopl = 'undefined'
-<<<<<<< HEAD
 
     elif(syntax == ['DET', 'VERB', 'NOUN', 'PRON', 'VERB', 'DET', 'NOUN', 'ADP', 'NOUN', 'CONJ', 'PRON', 'VERB', 'DET', 'NOUN', 'CONJ', 'ADV', 'DET', 'NOUN', '.']):
         print(tags)
@@ -316,10 +315,6 @@ def parser(sentence):
                 fopl = 'undefined'
         else:
             fopl = 'undefined'
-=======
-    elif(sentence == 'There is someone who is a member of Alpine and who is a mountain climber but not a skier.'):
-        fopl = 'Ex(X) member(X,alpine) & climber(X) & ~skier(X)'
->>>>>>> 4c7105f9f05605a232b6f817668ed3d307e5e40e
 
     elif(new):  
         fopl = 'undefined'    
@@ -405,7 +400,6 @@ parser('Bill does not like whatever Tony likes.')
 parser('Bill likes whatever Tony does not like.')
 parser('All Alpine members are skiers or climbers.')
 parser('Tony and Bill and John are members of Alpine.')
-<<<<<<< HEAD
 
 parser('Tom likes rain.')
 parser('Tom does not like snow.')
@@ -413,9 +407,3 @@ parser('Tom does not like snow.')
 parser('There is someone who is a member of Alpine and who is a climber but not a skier.')
 parser('There is someone who is a member of Alpine and who is a skier and also a climber.')
 '''
-=======
-parser('There is someone who is a member of Alpine and who is a mountain climber but not a skier.')
-parser('Tony likes rain.')
-parser('Tony does not like snow.')
-'''
->>>>>>> 4c7105f9f05605a232b6f817668ed3d307e5e40e
