@@ -290,8 +290,31 @@ def parser(sentence):
         else:
             fopl = 'undefined'
 
-    elif(sentence == 'There is someone who is a member of Alpine and who is a mountain climber but not a skier.'):
-        fopl = 'Ex(X) member(X,alpine) & climber(X) & ~skier(X)'
+    elif(syntax == ['DET', 'VERB', 'NOUN', 'PRON', 'VERB', 'DET', 'NOUN', 'ADP', 'NOUN', 'CONJ', 'PRON', 'VERB', 'DET', 'NOUN', 'CONJ', 'ADV', 'DET', 'NOUN', '.']):
+        print(tags)
+        verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
+        print(verbs)
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        conjs = [item[0] for item in tags if item[1] == 'CONJ']
+        adv = [item[0] for item in tags if item[1] == 'ADV'][0]
+        symbols = [' & ', ' & ']
+        for i in range(0, 2):
+            if conjs[i] != 'or' and conjs[i] != 'and' and conjs[i] != 'but':
+                return('invalid symbol')
+            if(conjs[i] == 'or'):
+                symbols[i] = ' | '
+        if tags[0][0] == 'There' and verbs[0] == 'be':
+            
+            if conjs[1] == 'but' and adv == 'not':
+                fopl = ('Ex(X) ' + nouns[1] + '(X,' + nouns[2] +')' + symbols[0] 
+                + nouns[3] + '(X)' + symbols[1] + '~' + nouns[4] + '(X)')
+            elif conjs[1] == 'and' and adv == 'also':
+                fopl = ('Ex(X) ' + nouns[1] + '(X,' + nouns[2] +')' + symbols[0] 
+                + nouns[3] + '(X)' + symbols[1] + nouns[4] + '(X)')
+            else:
+                fopl = 'undefined'
+        else:
+            fopl = 'undefined'
 
     elif(new):  
         fopl = 'undefined'    
@@ -386,5 +409,6 @@ parser('Tony and Bill and John are members of Alpine.')
 parser('Tom likes rain.')
 parser('Tom does not like snow.')
 
-parser('There is someone who is a member of Alpine and who is a mountain climber but not a skier.')
+parser('There is someone who is a member of Alpine and who is a climber but not a skier.')
+parser('There is someone who is a member of Alpine and who is a skier and also a climber.')
 '''
