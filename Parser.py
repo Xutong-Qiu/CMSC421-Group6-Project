@@ -291,9 +291,7 @@ def parser(sentence):
             fopl = 'undefined'
 
     elif(syntax == ['DET', 'VERB', 'NOUN', 'PRON', 'VERB', 'DET', 'NOUN', 'ADP', 'NOUN', 'CONJ', 'PRON', 'VERB', 'DET', 'NOUN', 'CONJ', 'ADV', 'DET', 'NOUN', '.']):
-        print(tags)
         verbs = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB']
-        print(verbs)
         nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
         conjs = [item[0] for item in tags if item[1] == 'CONJ']
         adv = [item[0] for item in tags if item[1] == 'ADV'][0]
@@ -304,7 +302,6 @@ def parser(sentence):
             if(conjs[i] == 'or'):
                 symbols[i] = ' | '
         if tags[0][0] == 'There' and verbs[0] == 'be':
-            
             if conjs[1] == 'but' and adv == 'not':
                 fopl = ('Ex(X) ' + nouns[1] + '(X,' + nouns[2] +')' + symbols[0] 
                 + nouns[3] + '(X)' + symbols[1] + '~' + nouns[4] + '(X)')
@@ -323,12 +320,12 @@ def parser(sentence):
         return ('Syntax not recognized: ', syntax)
         
     if(verbose):
-        #print('sentence: ', sentence)
-        #print('tokens: ', tokens)
-        #print('standard tags: ', standardTags)
-        #print('simple tags:  ', tags)
-        #print('syntax: ', syntax)
-        #print('fopl: ', fopl)
+        print('sentence: ', sentence)
+        print('tokens: ', tokens)
+        print('standard tags: ', standardTags)
+        print('simple tags:  ', tags)
+        print('syntax: ', syntax)
+        print('fopl: ', fopl)
         print()
     
     return fopl
@@ -403,7 +400,8 @@ parser('Tony and Bill and John are members of Alpine.')
 
 parser('Tom likes rain.')
 parser('Tom does not like snow.')
-
+'''
 parser('There is someone who is a member of Alpine and who is a climber but not a skier.')
 parser('There is someone who is a member of Alpine and who is a skier and also a climber.')
-'''
+parser('Someone is Alphinemember and skier but not climber.')
+
