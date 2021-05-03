@@ -6,6 +6,7 @@ from nltk.stem import WordNetLemmatizer
 # nltk.download('averaged_perceptron_tagger')
 
 new = True     # set to true when analyzing new syntax
+showResult = True
 lemmatizer = WordNetLemmatizer()
 
 def parser(sentence):
@@ -33,17 +34,26 @@ def parser(sentence):
 
     tokens = tmp_tokens
 
-    standardTags = nltk.tag.pos_tag(tokens)               # the standard tag set has a zillion tags   
     tags = nltk.tag.pos_tag(tokens, tagset='universal')   # 'universal' is a simplified tag set
     syntax = [item[1] for item in tags]
 
     if(syntax == ['NOUN', 'VERB', 'ADJ', '.']):  # Jack is smart.
-        modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
+        adj = [item[0] for item in tags if item[1] == 'ADJ'][0]
         noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN'][0]
         if(tags[0][0].lower() == noun):
-            fopl = modifier +'(' + noun + ')'
+            fopl = adj +'(' + noun + ')'
         else:
-            fopl = 'All(X) ' + noun + '(X) -> ' + modifier + '(X)'
+            fopl = 'All(X) ' + noun + '(X) -> ' + adj + '(X)'
+
+    elif syntax == ['PRON', 'VERB', 'ADJ', '.']:
+        adj = [item[0] for item in tags if item[1] == 'ADJ'][0]
+        pron = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'PRON'][0]
+        fopl = adj +'(' + pron + ')'
+
+    elif syntax == ['PRON', 'VERB', 'ADV', 'ADJ', '.']:
+        adj = [item[0] for item in tags if item[1] == 'ADJ'][0]
+        pron = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'PRON'][0]
+        fopl = '~' + adj +'(' + pron + ')'
 
     elif(syntax == ['NOUN', 'VERB', 'ADV', 'ADJ', '.']):
         modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
@@ -375,13 +385,13 @@ def parser(sentence):
     else:
         return ('Syntax not recognized: ', syntax)
         
-    print('sentence: ', sentence)
-    print('tokens: ', tokens)
-    print('standard tags: ', standardTags)
-    print('simple tags:  ', tags)
-    print('syntax: ', syntax)
-    print('fopl: ', fopl)
-    print()
+    if(showResult):
+        print('sentence: ', sentence)
+        print('tokens: ', tokens)
+        print('tags:  ', tags)
+        print('syntax: ', syntax)
+        print('fopl: ', fopl)
+        print()
     
     return fopl
 
@@ -464,5 +474,7 @@ parser('Everyone is tall.')
 parser('Everything is tall.')
 parser('Anything is tall.')
 parser('Something is tall.')
-'''
 
+parser('I am happy.')
+parser('I am not happy.')
+'''
