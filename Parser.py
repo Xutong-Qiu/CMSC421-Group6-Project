@@ -9,8 +9,30 @@ new = True     # set to true when analyzing new syntax
 lemmatizer = WordNetLemmatizer()
 
 def parser(sentence):
-    
+
     tokens = nltk.word_tokenize(sentence)   
+    tmp_tokens = tokens
+
+    if tokens[0] == 'Someone' or tokens[0] == 'Somebody':
+        tmp_tokens = ['Some', 'person']
+        for i in range(1, len(tokens)):
+            tmp_tokens.append(tokens[i])
+    elif (tokens[0] == 'Anyone' or tokens[0] == 'Everyone' 
+    or tokens[0] == 'Everybody' or tokens[0] == 'Anybody'):
+        tmp_tokens = ['Every', 'person']
+        for i in range(1, len(tokens)):
+            tmp_tokens.append(tokens[i])
+    elif tokens[0] == 'Something':
+        tmp_tokens = ['Some', 'thing']
+        for i in range(1, len(tokens)):
+            tmp_tokens.append(tokens[i])
+    elif tokens[0] == 'Anything' or tokens[0] == 'Everything':
+        tmp_tokens = ['All', 'thing']
+        for i in range(1, len(tokens)):
+            tmp_tokens.append(tokens[i])
+
+    tokens = tmp_tokens
+
     standardTags = nltk.tag.pos_tag(tokens)               # the standard tag set has a zillion tags   
     tags = nltk.tag.pos_tag(tokens, tagset='universal')   # 'universal' is a simplified tag set
     syntax = [item[1] for item in tags]
@@ -78,6 +100,21 @@ def parser(sentence):
             else:
                 verb = lemmatizer.lemmatize(verb, 'v')
                 fopl = verb + '(' + nouns[0] + ',' + nouns[1] + ')'
+
+    elif(syntax ==  ['NOUN', 'VERB', 'ADV', 'DET', 'NOUN', '.']):
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
+        det = [item[0] for item in tags if item[1] == 'DET'][0]
+        if verb == 'be':
+            fopl = '~' + nouns[1] + '(' + nouns[0] + ')'
+        else:
+            if det == 'all' or det == 'every':
+                fopl = 'Ex(X) ' + nouns[1] + '(X) & ~' + nouns[0] + '(X)'
+            elif det == 'any':
+                fopl = 'All(X) ' + nouns[1] + '(X) | ~' + nouns[0] + '(X)'
+            else:
+                verb = lemmatizer.lemmatize(verb, 'v')
+                fopl = '~' + verb + '(' + nouns[0] + ',' + nouns[1] + ')'
 
     elif(syntax == ['DET', 'NOUN', 'VERB', 'DET', 'NOUN', '.']): # A dog chases a car.
         # VERB is not 'is' (to be or not to be)
@@ -173,8 +210,8 @@ def parser(sentence):
         else:
             fopl = 'undefined'
     
-    elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and tokens[0] == 'All' and 
-    (tokens[2] == 'are' or tokens[2] == 'is')):
+    elif(syntax == ['DET', 'NOUN', 'VERB', 'ADJ', '.'] and (tokens[0] == 'All' or 
+    tokens[0] == 'Every' or tokens[0] == 'Any') and (tokens[2] == 'are' or tokens[2] == 'is')):
         # All water is precious.        All dogs are nice.
         # fopl = 'All(x) ' + tokens[3] + '(' + tokens[1] + ')' 
         nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
@@ -211,7 +248,10 @@ def parser(sentence):
             symbol = ' & '
         else:
             return('invalid symbol')
-        fopl = verb +'(' + nouns[0] + ',' + nouns[1] + ')' + symbol + verb +'(' + nouns[0] + ',' + nouns[2] + ')'
+        if verb == 'be':
+            fopl = nouns[1] + '(' + nouns[0] + ')' + symbol + nouns[2] + '(' + nouns[0] + ')'
+        else:
+            fopl = verb +'(' + nouns[0] + ',' + nouns[1] + ')' + symbol + verb +'(' + nouns[0] + ',' + nouns[2] + ')'
 
     elif(syntax == ['DET', 'NOUN', 'DET', 'VERB', 'DET', 'NOUN', 'VERB', 'ADJ', '.'] or
         syntax == ['DET', 'NOUN', 'DET', 'VERB', 'NOUN', 'VERB', 'ADJ', '.']):
@@ -320,8 +360,17 @@ def parser(sentence):
         else:
             fopl = 'undefined'
 
+    # elif syntax == ['PRON', 'VERB', 'ADJ', '.']:
+    #     verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
+    #     pron = [item[0].lower() for item in tags if item[1] == 'PRON'][0]
+    #     if verb == 'be':
+    #         fopl = 
+
+
     elif(new):  
         fopl = 'undefined'    
+
+
 
     else:
         return ('Syntax not recognized: ', syntax)
@@ -354,11 +403,10 @@ parser('A dog chases a car.')
 parser('Socrates is a mortal philospher.')
 parser('Joe climbs a ladder.')
 parser('Joe climbs a ladder.')
-print('***Multiple sentences***\n')
-text = 'A dog chases a car. Socrates is a mortal philospher. '
-sentences = nltk.sent_tokenize(text)
-for sentence in sentences:
-    parser(sentence)
+parser('Becky is an athlete and a skier.')
+parser('Becky is a student.')
+parser('Becky is not a skier.')
+parser('Becky is not a student.	')
     
 print("***Quantifiers***")
 parser('Some cats are nice.')
@@ -409,8 +457,12 @@ parser('Tom does not like snow.')
 
 parser('There is someone who is a member of Alpine and who is a climber but not a skier.')
 parser('There is someone who is a member of Alpine and who is a skier and also a climber.')
-'''
-parser('Someone is tall.')
-parser('Some person is tall.')
 
+parser('Someone is tall.')
+parser('Anyone is tall.')
+parser('Everyone is tall.')
+parser('Everything is tall.')
+parser('Anything is tall.')
+parser('Something is tall.')
+'''
 
