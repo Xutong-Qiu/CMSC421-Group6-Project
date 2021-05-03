@@ -11,7 +11,7 @@ lemmatizer = WordNetLemmatizer()
 def parser(sentence):
     
     tokens = nltk.word_tokenize(sentence)   
-    # standardTags = nltk.tag.pos_tag(tokens)               # the standard tag set has a zillion tags   
+    standardTags = nltk.tag.pos_tag(tokens)               # the standard tag set has a zillion tags   
     tags = nltk.tag.pos_tag(tokens, tagset='universal')   # 'universal' is a simplified tag set
     syntax = [item[1] for item in tags]
 
@@ -32,9 +32,9 @@ def parser(sentence):
             fopl = 'All(X) ~ ( ' + noun + '(X) -> ' + modifier + '(X) )'
 
     elif(syntax == ['NOUN', 'VERB', 'DET', 'ADJ', '.']):
-        modifier = [item[0] for item in tags if item[1] == 'ADJ'][0]
+        adj = [item[0] for item in tags if item[1] == 'ADJ'][0]
         noun = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN'][0]
-        fopl = modifier +'(' + noun + ')'
+        fopl = adj +'(' + noun + ')'
 
     elif(syntax == ['NOUN', 'VERB', 'NOUN', '.']):
         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
@@ -66,7 +66,6 @@ def parser(sentence):
     elif(syntax == ['NOUN', 'VERB', 'DET', 'NOUN', '.']): # Jack is a student. 
         # 'VERB' is 'is' 
          nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
-        # noun = [item[0] for item in tags if item[1] == 'NOUN'][0]
          verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
          det = [item[0] for item in tags if item[1] == 'DET'][0]
          if verb == 'be':
@@ -82,9 +81,18 @@ def parser(sentence):
 
     elif(syntax == ['DET', 'NOUN', 'VERB', 'DET', 'NOUN', '.']): # A dog chases a car.
         # VERB is not 'is' (to be or not to be)
-         verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
-         nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
-         fopl = verb + '(' + nouns[0] + ',' + nouns[1] + ')'
+        verb = [lemmatizer.lemmatize(item[0], 'v') for item in tags if item[1] == 'VERB'][0]
+        nouns = [lemmatizer.lemmatize(item[0].lower(), 'n') for item in tags if item[1] == 'NOUN']
+        if verb == 'be':
+            if tags[0][0] == 'Some':
+                fopl = 'Ex(X) ' + nouns[0] + '(X) -> ' + nouns[1] + '(X)'
+            else:
+                fopl = nouns[1] + '(' + nouns[0] + ')'
+        else:
+            if tags[0][0] == 'Some':
+                fopl = 'Ex(X) ' + nouns[0] + '(X) -> ' + verb + '(' + nouns[0] + ',' + nouns[1] + ')'
+            else:
+                fopl = verb + '(' + nouns[0] + ',' + nouns[1] + ')'
 
     elif(syntax == ['DET', 'NOUN', 'VERB', 'NOUN', '.']): 
         # All men are mortals. ∀(x) ((man(x)) → (mortal(x)))
@@ -318,13 +326,13 @@ def parser(sentence):
     else:
         return ('Syntax not recognized: ', syntax)
         
-    # print('sentence: ', sentence)
-    # print('tokens: ', tokens)
-    # print('standard tags: ', standardTags)
-    # print('simple tags:  ', tags)
-    # print('syntax: ', syntax)
-    # print('fopl: ', fopl)
-    # print()
+    print('sentence: ', sentence)
+    print('tokens: ', tokens)
+    print('standard tags: ', standardTags)
+    print('simple tags:  ', tags)
+    print('syntax: ', syntax)
+    print('fopl: ', fopl)
+    print()
     
     return fopl
 
@@ -402,4 +410,7 @@ parser('Tom does not like snow.')
 parser('There is someone who is a member of Alpine and who is a climber but not a skier.')
 parser('There is someone who is a member of Alpine and who is a skier and also a climber.')
 '''
+parser('Someone is tall.')
+parser('Some person is tall.')
+
 
